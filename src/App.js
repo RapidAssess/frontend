@@ -3,21 +3,15 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  const [currentTime, setCurrentTime] = useState(0);
-
-  useEffect(() => {
-    fetch('/time').then(res => res.json()).then(data => {
-      setCurrentTime(data.time);
-    });
-  }, []);
-
   return (
     <div className="App">
       <header className="App-header">
 
-        ... no changes in this part ...
+        {/* ... no changes in this part ... */}
 
-        <p>The current time is {currentTime}.</p>
+        <h1 className="text-3xl text-red-500 font-bold">
+          Hello world!
+        </h1>
       </header>
     </div>
   );
