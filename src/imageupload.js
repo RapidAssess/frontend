@@ -4,6 +4,14 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { Unstable_NumberInput as NumberInput } from "@mui/base/Unstable_NumberInput";
 
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Card from "@mui/material/Card";
+import Fab from "@mui/material/Fab";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import CollectionsIcon from "@mui/icons-material/Collections";
+import './output.css';
+
 export const ImageUpload = () => {
   const [selectedFile, setSelectedFile] = useState();
   const [preview, setPreview] = useState();
@@ -65,6 +73,7 @@ export const ImageUpload = () => {
     setResult(null);
   };
 
+
   useEffect(() => {
     if (!selectedFile) {
       setPreview(undefined);
@@ -95,25 +104,32 @@ export const ImageUpload = () => {
   }, [acceptedFiles]);
 
   return (
-    <div style={{ margin: "auto", width: "50%", justifyItems: "center" }}>
-      <div
-        style={{
-          margin: "auto",
-          width: "100%",
-          color: "red",
-        }}
-        {...getRootProps({ className: "dropzone" })}
-      >
-        <input {...getInputProps()} />
-        <p style={{ textAlign: "center" }}>
-          Drop satellite image here, or click to select file
-        </p>
-        <p style={{ textAlign: "center" }}>
-          (Only *.jpeg images will be accepted)
-        </p>
-      </div>
-
+    <div className="w-1/2 m-auto self-center content-center items-center p-5">
+    <div className="self-center" {...getRootProps({ className: "dropzone" })} />
+      <Card className="p-3 flex justify-center">
+		<input
+              accept="image/*"
+              id="contained-button-file"
+              type="file"
+			  {...getInputProps()}
+		/>
+		<div className="m-3">
+			<label htmlFor="contained-button-file">
+				<Fab className="m-3" component="span">
+					<AddPhotoAlternateIcon className="m-3"/>
+				</Fab>
+			</label>
+		</div>
+		<div className="m-3">
+			<label htmlFor="contained-button-file">
+				<Fab className="m-3" component="span">
+					<CollectionsIcon className="m-3"/>
+				</Fab>
+			</label>
+		</div>
+		</Card>
       <div style={{ margin: "auto", width: "100%" }}>
+		<h1 className="text-xl font-bold"> Starting Coordinates </h1>
         <div>
           <p>Start X:</p>
           <NumberInput
@@ -137,7 +153,9 @@ export const ImageUpload = () => {
             max={255}
           />
         </div>
-
+	</div>
+	<div style={{ margin: "auto", width: "100%" }}>
+	<h1 className="text-xl font-bold"> Destination Coordinates </h1>
         <div>
           <p>End X:</p>
           <NumberInput
@@ -161,10 +179,11 @@ export const ImageUpload = () => {
             max={255}
           />
         </div>
-
+	</div>
         <div>
-          <p>
-            Threshold: Default is 10, set to lower value if roads aren't fully
+        <h1 className="text-xl font-bold"> Threshold </h1>
+          <p className="text-gray-500">
+            Default is 10, set to lower value if roads aren't fully
             detected (or vice versa)
           </p>
           <NumberInput
@@ -224,11 +243,13 @@ export const ImageUpload = () => {
             </div>
           )}
         </div>
-      </div>
 
-      <div style={{ margin: "auto", width: "50%", justifyItems: "center" }}>
-        <button onClick={sendFile}>Submit</button>
-        <button onClick={clearData}>Clear</button>
+
+      <div className="flex justify-center">
+		<ButtonGroup className="m-1.5">
+			<Button onClick={sendFile}>Submit</Button>
+			<Button variant="contained" color="error" onClick={clearData}>Clear</Button>
+		</ButtonGroup>
       </div>
 
       <div style={{ margin: "auto", width: "100%" }}>
