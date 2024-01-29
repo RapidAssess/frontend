@@ -2,8 +2,17 @@
 module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+      extend: {
+          colors: {
+              maroonbg: '#4E0506',
+          }
+      },
   },
-  plugins: [],
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/aspect-ratio'),
+        require('@tailwindcss/line-clamp'),
+    ],
 }
 

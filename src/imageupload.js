@@ -10,6 +10,7 @@ import Card from "@mui/material/Card";
 import Fab from "@mui/material/Fab";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CollectionsIcon from "@mui/icons-material/Collections";
+import Menu from './Menu';
 import './output.css';
 
 export const ImageUpload = () => {
@@ -104,34 +105,96 @@ export const ImageUpload = () => {
   }, [acceptedFiles]);
 
   return (
-    <div className="w-1/2 m-auto self-center content-center items-center p-5">
-    <div className="self-center" {...getRootProps({ className: "dropzone" })} />
-      <Card className="p-3 flex justify-center">
-		<input
-              accept="image/*"
-              id="contained-button-file"
-              type="file"
-			  {...getInputProps()}
-		/>
-		<div className="m-3">
-			<label htmlFor="contained-button-file">
-				<Fab className="m-3" component="span">
-					<AddPhotoAlternateIcon className="m-3"/>
-				</Fab>
-			</label>
-		</div>
-		<div className="m-3">
-			<label htmlFor="contained-button-file">
-				<Fab className="m-3" component="span">
-					<CollectionsIcon className="m-3"/>
-				</Fab>
-			</label>
-		</div>
-		</Card>
-      <div style={{ margin: "auto", width: "100%" }}>
+    <div className="min-h-screen text-white self-center content-center items-center p-5 bg-maroonbg">
+          <div className="self-center" {...getRootProps({ className: "dropzone" })} />
+          <input
+              type="text"
+              placeholder="Enter Location Title"
+              className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
+              //value={locationTitle}
+              //onChange={(e) => setLocationTitle(e.target.value)}
+          />
+
+          <div className="m-10">
+          {image ? (
+              <div className="m-10 mt-1" style={{ margin: "auto", width: "100%" }}>
+                  {preview && (
+                      <div
+                          style={{
+                              margin: "auto",
+                              width: 256,
+                              height: 256,
+                              position: "relative",
+                              backgroundColor: "white",
+                          }}
+                      >
+                          <div
+                              style={{
+                                  width: 10,
+                                  height: 10,
+                                  backgroundColor: "#27FF00",
+                                  position: "absolute",
+                                  bottom: startY,
+                                  left: startX,
+                              }}
+                          />
+                          <div
+                              style={{
+                                  width: 10,
+                                  height: 10,
+                                  backgroundColor: "red",
+                                  position: "absolute",
+                                  bottom: endY,
+                                  left: endX,
+                              }}
+                          />
+                          <img
+                              src={preview}
+                              style={{
+                                  margin: "auto",
+                                  display: "block",
+                                  width: 256,
+                                  height: 256,
+                              }}
+                          />
+                      </div>
+                  )}
+              </div>
+          ) : (
+                  <div className="p-5 m-10 mt-1 items-center flex justify-center">
+                      <Card style={{ height: '25vh' }} className="px-10 py-5 mt-5 w-1/2 flex justify-center">
+                          <input
+                              accept="image/*"
+                              id="contained-button-file"
+                              type="file"
+                              {...getInputProps()}
+                          />
+                          <div className="flex justify-center items-center">
+                              <div className="m-3">
+                                  <label htmlFor="contained-button-file">
+                                      <Fab className="m-3" component="span">
+                                          <AddPhotoAlternateIcon className="m-3" />
+                                      </Fab>
+                                  </label>
+                              </div>
+                              <div className="m-3">
+                                  <label htmlFor="contained-button-file">
+                                      <Fab className="m-3" component="span">
+                                          <CollectionsIcon className="m-3" />
+                                      </Fab>
+                                  </label>
+                              </div>
+                          </div>
+                      </Card>
+                  </div>
+
+              )}
+          </div>
+    <div className="flex mb-10 justify-center">
+      <div className="p-3" style={{ margin: "auto", width: "100%" }}>
 		<h1 className="text-xl font-bold"> Starting Coordinates </h1>
-        <div>
-          <p>Start X:</p>
+         <div className="text-black">
+          <p className="text-white">Start X:</p>
           <NumberInput
             aria-label="Demo number input"
             placeholder="Type a number…"
@@ -142,8 +205,8 @@ export const ImageUpload = () => {
           />
         </div>
 
-        <div>
-          <p>Start Y:</p>
+      <div className="text-black">
+        <p className="text-white">Start Y:</p>
           <NumberInput
             aria-label="Demo number input"
             placeholder="Type a number…"
@@ -154,10 +217,10 @@ export const ImageUpload = () => {
           />
         </div>
 	</div>
-	<div style={{ margin: "auto", width: "100%" }}>
+	<div className="p-3" style={{ margin: "auto", width: "100%" }}>
 	<h1 className="text-xl font-bold"> Destination Coordinates </h1>
-        <div>
-          <p>End X:</p>
+        <div className="text-black">
+         <p className="text-white">End X:</p>
           <NumberInput
             aria-label="Demo number input"
             placeholder="Type a number…"
@@ -168,8 +231,8 @@ export const ImageUpload = () => {
           />
         </div>
 
-        <div>
-          <p>End Y:</p>
+    <div className="text-black">
+     <p className="text-white">End Y:</p>
           <NumberInput
             aria-label="Demo number input"
             placeholder="Type a number…"
@@ -180,8 +243,8 @@ export const ImageUpload = () => {
           />
         </div>
 	</div>
-        <div>
-        <h1 className="text-xl font-bold"> Threshold </h1>
+    <div className="text-black p-3">
+        <h1 className="text-xl text-white font-bold"> Threshold </h1>
           <p className="text-gray-500">
             Default is 10, set to lower value if roads aren't fully
             detected (or vice versa)
@@ -194,6 +257,7 @@ export const ImageUpload = () => {
             min={0}
             max={255}
           />
+          </div>
         </div>
 
         <div style={{ margin: "auto", width: "100%" }}>
