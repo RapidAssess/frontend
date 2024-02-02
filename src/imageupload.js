@@ -4,14 +4,14 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { Unstable_NumberInput as NumberInput } from "@mui/base/Unstable_NumberInput";
 
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import Card from "@mui/material/Card";
 import Fab from "@mui/material/Fab";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CollectionsIcon from "@mui/icons-material/Collections";
-import Menu from './Menu';
-import './output.css';
+import Menu from "./Menu";
+import "./output.css";
 
 export const ImageUpload = () => {
   const [selectedFile, setSelectedFile] = useState();
@@ -25,6 +25,8 @@ export const ImageUpload = () => {
   const [endX, setEndX] = useState(0);
   const [endY, setEndY] = useState(0);
   const [threshold, setThreshold] = useState(10);
+  const [pinMode, setPinMode] = useState(false);
+  const [pins, setPins] = useState([]);
 
   const {
     acceptedFiles,
@@ -62,7 +64,18 @@ export const ImageUpload = () => {
       var url = URL.createObjectURL(res.data);
       setResult(url);
 
-      setIsloading(false);
+      // Add pins data to state
+      setPins((prevPins) => [
+        ...prevPins,
+        { x: startX, y: startY, color: "#27FF00" },
+        { x: endX, y: endY, color: "red" },
+      ]);
+
+      // Clear start and end coordinates
+      setStartX(0);
+      setStartY(0);
+      setEndX(0);
+      setEndY(0);
     }
   };
 
@@ -72,9 +85,22 @@ export const ImageUpload = () => {
     setSelectedFile(null);
     setPreview(null);
     setResult(null);
+    setPins([]);
   };
+  const handleImageClick = (event) => {
+    if (pinMode && pins.length == 0) {
+      const boundingBox = event.currentTarget.getBoundingClientRect();
+      const clickedX = event.clientX - boundingBox.left;
+      const clickedY = boundingBox.bottom - event.clientY;
 
+      console.log("Clicked Coordinates:", clickedX, clickedY);
 
+      setPins((prevPins) => [
+        ...prevPins,
+        { x: clickedX, y: clickedY, color: "#27FF00" },
+      ]);
+    }
+  };
   useEffect(() => {
     if (!selectedFile) {
       setPreview(undefined);
@@ -104,150 +130,169 @@ export const ImageUpload = () => {
     setImage(true);
   }, [acceptedFiles]);
 
+  useEffect(() => {
+    if (pins.length > 0) {
+      setPinMode(false);
+    }
+  }, [pins]);
+
   return (
     <div className="min-h-screen text-white self-center content-center items-center p-5 bg-maroonbg">
-          <div className="self-center" {...getRootProps({ className: "dropzone" })} />
-          <input
-              type="text"
-              placeholder="Enter Location Title"
-              className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
-              //value={locationTitle}
-              //onChange={(e) => setLocationTitle(e.target.value)}
-          />
+      <div
+        className="self-center"
+        {...getRootProps({ className: "dropzone" })}
+      />
+      <input
+        type="text"
+        placeholder="Enter Location Title"
+        className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
+        //value={locationTitle}
+        //onChange={(e) => setLocationTitle(e.target.value)}
+      />
 
-          <div className="m-10">
-          {image ? (
-              <div className="m-10 mt-1" style={{ margin: "auto", width: "100%" }}>
-                  {preview && (
-                      <div
-                          style={{
-                              margin: "auto",
-                              width: 256,
-                              height: 256,
-                              position: "relative",
-                              backgroundColor: "white",
-                          }}
-                      >
-                          <div
-                              style={{
-                                  width: 10,
-                                  height: 10,
-                                  backgroundColor: "#27FF00",
-                                  position: "absolute",
-                                  bottom: startY,
-                                  left: startX,
-                              }}
-                          />
-                          <div
-                              style={{
-                                  width: 10,
-                                  height: 10,
-                                  backgroundColor: "red",
-                                  position: "absolute",
-                                  bottom: endY,
-                                  left: endX,
-                              }}
-                          />
-                          <img
-                              src={preview}
-                              style={{
-                                  margin: "auto",
-                                  display: "block",
-                                  width: 256,
-                                  height: 256,
-                              }}
-                          />
-                      </div>
-                  )}
+      <div className="m-10 justify-center">
+        {image ? (
+          <div
+            className="m-10 mt-1"
+            style={{
+              margin: "auto",
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            {preview && (
+              <div
+                style={{
+                  position: "relative",
+                  width: 256,
+                  height: 256,
+                }}
+                onClick={handleImageClick}
+              >
+                <img
+                  src={preview}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                {pins.map((pin, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: 10,
+                      height: 10,
+                      backgroundColor: pin.color,
+                      position: "absolute",
+                      bottom: pin.y,
+                      left: pin.x,
+                    }}
+                  />
+                ))}
               </div>
-          ) : (
-                  <div className="p-5 m-10 mt-1 items-center flex justify-center">
-                      <Card style={{ height: '25vh' }} className="px-10 py-5 mt-5 w-1/2 flex justify-center">
-                          <input
-                              accept="image/*"
-                              id="contained-button-file"
-                              type="file"
-                              {...getInputProps()}
-                          />
-                          <div className="flex justify-center items-center">
-                              <div className="m-3">
-                                  <label htmlFor="contained-button-file">
-                                      <Fab className="m-3" component="span">
-                                          <AddPhotoAlternateIcon className="m-3" />
-                                      </Fab>
-                                  </label>
-                              </div>
-                              <div className="m-3">
-                                  <label htmlFor="contained-button-file">
-                                      <Fab className="m-3" component="span">
-                                          <CollectionsIcon className="m-3" />
-                                      </Fab>
-                                  </label>
-                              </div>
-                          </div>
-                      </Card>
-                  </div>
-
-              )}
+            )}
           </div>
-    <div className="flex mb-10 justify-center">
-      <div className="p-3" style={{ margin: "auto", width: "100%" }}>
-		<h1 className="text-xl font-bold"> Starting Coordinates </h1>
-         <div className="text-black">
-          <p className="text-white">Start X:</p>
-          <NumberInput
-            aria-label="Demo number input"
-            placeholder="Type a number…"
-            value={startX}
-            onChange={(event, val) => setStartX(val)}
-            min={0}
-            max={255}
-          />
-        </div>
+        ) : (
+          <div className="p-5 m-10 mt-1 items-center flex justify-center">
+            <Card
+              style={{ height: "25vh" }}
+              className="px-10 py-5 mt-5 w-1/2 flex justify-center"
+            >
+              <input
+                accept="image/*"
+                id="contained-button-file"
+                type="file"
+                {...getInputProps()}
+              />
+              <div className="flex justify-center items-center">
+                <div className="m-3">
+                  <label htmlFor="contained-button-file">
+                    <Fab className="m-3" component="span">
+                      <AddPhotoAlternateIcon className="m-3" />
+                    </Fab>
+                  </label>
+                </div>
+                <div className="m-3">
+                  <label htmlFor="contained-button-file">
+                    <Fab className="m-3" component="span">
+                      <CollectionsIcon className="m-3" />
+                    </Fab>
+                  </label>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+      <button
+        className="bg-green-500 text-white px-4 py-2 rounded"
+        onClick={() => {
+          setPinMode(true);
+        }}
+      >
+        Drop Green Pin
+      </button>
 
-      <div className="text-black">
-        <p className="text-white">Start Y:</p>
-          <NumberInput
-            aria-label="Demo number input"
-            placeholder="Type a number…"
-            value={startY}
-            onChange={(event, val) => setStartY(val)}
-            min={0}
-            max={255}
-          />
-        </div>
-	</div>
-	<div className="p-3" style={{ margin: "auto", width: "100%" }}>
-	<h1 className="text-xl font-bold"> Destination Coordinates </h1>
-        <div className="text-black">
-         <p className="text-white">End X:</p>
-          <NumberInput
-            aria-label="Demo number input"
-            placeholder="Type a number…"
-            value={endX}
-            onChange={(event, val) => setEndX(val)}
-            min={0}
-            max={255}
-          />
-        </div>
+      <div className="flex mb-10 justify-center">
+        <div className="p-3" style={{ margin: "auto", width: "100%" }}>
+          <h1 className="text-xl font-bold"> Starting Coordinates </h1>
+          <div className="text-black">
+            <p className="text-white">Start X:</p>
+            <NumberInput
+              aria-label="Demo number input"
+              placeholder="Type a number…"
+              value={startX}
+              onChange={(event, val) => setStartX(val)}
+              min={0}
+              max={255}
+            />
+          </div>
 
-    <div className="text-black">
-     <p className="text-white">End Y:</p>
-          <NumberInput
-            aria-label="Demo number input"
-            placeholder="Type a number…"
-            value={endY}
-            onChange={(event, val) => setEndY(val)}
-            min={0}
-            max={255}
-          />
+          <div className="text-black">
+            <p className="text-white">Start Y:</p>
+            <NumberInput
+              aria-label="Demo number input"
+              placeholder="Type a number…"
+              value={startY}
+              onChange={(event, val) => setStartY(val)}
+              min={0}
+              max={255}
+            />
+          </div>
         </div>
-	</div>
-    <div className="text-black p-3">
-        <h1 className="text-xl text-white font-bold"> Threshold </h1>
+        <div className="p-3" style={{ margin: "auto", width: "100%" }}>
+          <h1 className="text-xl font-bold"> Destination Coordinates </h1>
+          <div className="text-black">
+            <p className="text-white">End X:</p>
+            <NumberInput
+              aria-label="Demo number input"
+              placeholder="Type a number…"
+              value={endX}
+              onChange={(event, val) => setEndX(val)}
+              min={0}
+              max={255}
+            />
+          </div>
+
+          <div className="text-black">
+            <p className="text-white">End Y:</p>
+            <NumberInput
+              aria-label="Demo number input"
+              placeholder="Type a number…"
+              value={endY}
+              onChange={(event, val) => setEndY(val)}
+              min={0}
+              max={255}
+            />
+          </div>
+        </div>
+        <div className="text-black p-3">
+          <h1 className="text-xl text-white font-bold"> Threshold </h1>
           <p className="text-gray-500">
-            Default is 10, set to lower value if roads aren't fully
-            detected (or vice versa)
+            Default is 10, set to lower value if roads aren't fully detected (or
+            vice versa)
           </p>
           <NumberInput
             aria-label="Demo number input"
@@ -257,63 +302,64 @@ export const ImageUpload = () => {
             min={0}
             max={255}
           />
-          </div>
         </div>
+      </div>
 
-        <div style={{ margin: "auto", width: "100%" }}>
-          <p style={{ textAlign: "center" }}>Preview:</p>
-          {preview && (
-            <div
-              style={{
-                margin: "auto",
-                // display: "inline-block",
-                width: 256,
-                height: 256,
-                position: "relative",
-                // zIndex: 1,
-              }}
-            >
-              <div
-                style={{
-                  width: 10,
-                  height: 10,
-                  backgroundColor: "#27FF00",
-                  position: "absolute",
-                  bottom: startY,
-                  left: startX,
-                }}
-              />
-              <div
-                style={{
-                  width: 10,
-                  height: 10,
-                  backgroundColor: "red",
-                  position: "absolute",
-                  bottom: endY,
-                  left: endX,
-                }}
-              />
-              <img
-                src={preview}
-                style={{
-                  margin: "auto",
-                  display: "block",
-                  width: 256,
-                  height: 256,
-                  // position: "absolute",
-                  // zIndex: 2,
-                }}
-              />
-            </div>
-          )}
-        </div>
-
+      {/*<div style={{ margin: "auto", width: "100%" }}>*/}
+      {/*  <p style={{ textAlign: "center" }}>Preview:</p>*/}
+      {/*  {preview && (*/}
+      {/*    <div*/}
+      {/*      style={{*/}
+      {/*        margin: "auto",*/}
+      {/*        // display: "inline-block",*/}
+      {/*        width: 256,*/}
+      {/*        height: 256,*/}
+      {/*        position: "relative",*/}
+      {/*        // zIndex: 1,*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      <div*/}
+      {/*        style={{*/}
+      {/*          width: 10,*/}
+      {/*          height: 10,*/}
+      {/*          backgroundColor: "#27FF00",*/}
+      {/*          position: "absolute",*/}
+      {/*          bottom: startY,*/}
+      {/*          left: startX,*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*      <div*/}
+      {/*        style={{*/}
+      {/*          width: 10,*/}
+      {/*          height: 10,*/}
+      {/*          backgroundColor: "red",*/}
+      {/*          position: "absolute",*/}
+      {/*          bottom: endY,*/}
+      {/*          left: endX,*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*      <img*/}
+      {/*        src={preview}*/}
+      {/*        style={{*/}
+      {/*          margin: "auto",*/}
+      {/*          display: "block",*/}
+      {/*          width: 256,*/}
+      {/*          height: 256,*/}
+      {/*          // position: "absolute",*/}
+      {/*          // zIndex: 2,*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    </div>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       <div className="flex justify-center">
-		<ButtonGroup className="m-1.5">
-			<Button onClick={sendFile}>Submit</Button>
-			<Button variant="contained" color="error" onClick={clearData}>Clear</Button>
-		</ButtonGroup>
+        <ButtonGroup className="m-1.5">
+          <Button onClick={sendFile}>Submit</Button>
+          <Button variant="contained" color="error" onClick={clearData}>
+            Clear
+          </Button>
+        </ButtonGroup>
       </div>
 
       <div style={{ margin: "auto", width: "100%" }}>
