@@ -25,8 +25,13 @@ export const ImageUpload = () => {
   const [endX, setEndX] = useState(0);
   const [endY, setEndY] = useState(0);
   const [threshold, setThreshold] = useState(10);
-  const [pinMode, setPinMode] = useState(false);
-  const [pins, setPins] = useState([]);
+  /*  const [pinMode, setPinMode] = useState(false);*/
+  const [greenPinMode, setGreenPinMode] = useState(false);
+  const [redPinMode, setRedPinMode] = useState(false);
+  const [yellowPinMode, setYellowPinMode] = useState(false);
+  const [greenPin, setGreenPin] = useState(null);
+  const [yellowPin, setYellowPin] = useState(null);
+  const [redPin, setRedPin] = useState(null);
 
   const {
     acceptedFiles,
@@ -64,12 +69,11 @@ export const ImageUpload = () => {
       var url = URL.createObjectURL(res.data);
       setResult(url);
 
-      // Add pins data to state
-      setPins((prevPins) => [
-        ...prevPins,
-        { x: startX, y: startY, color: "#27FF00" },
-        { x: endX, y: endY, color: "red" },
-      ]);
+      //setPins((prevPins) => [
+      //  ...prevPins,
+      //  { x: startX, y: startY, color: "#27FF00" },
+      //  { x: endX, y: endY, color: "red" },
+      //]);
 
       // Clear start and end coordinates
       setStartX(0);
@@ -85,22 +89,34 @@ export const ImageUpload = () => {
     setSelectedFile(null);
     setPreview(null);
     setResult(null);
-    setPins([]);
+    setGreenPin(null);
+    setYellowPin(null);
+    setRedPin(null);
+    setGreenPinMode(false);
+    setRedPinMode(false);
+    setYellowPinMode(false);
   };
   const handleImageClick = (event) => {
-    if (pinMode && pins.length == 0) {
-      const boundingBox = event.currentTarget.getBoundingClientRect();
-      const clickedX = event.clientX - boundingBox.left;
-      const clickedY = boundingBox.bottom - event.clientY;
+    let pinColor = "";
+    const boundingBox = event.currentTarget.getBoundingClientRect();
+    let clickedX = event.clientX - boundingBox.left;
+    let clickedY = boundingBox.bottom - event.clientY;
 
-      console.log("Clicked Coordinates:", clickedX, clickedY);
-
-      setPins((prevPins) => [
-        ...prevPins,
-        { x: clickedX, y: clickedY, color: "#27FF00" },
-      ]);
+    if (greenPinMode) {
+      pinColor = "#27FF00";
+      setGreenPin({ x: clickedX, y: clickedY, color: pinColor });
+      setGreenPinMode(false);
+    } else if (yellowPinMode) {
+      pinColor = "#FFFF00";
+      setYellowPin({ x: clickedX, y: clickedY, color: pinColor });
+      setYellowPinMode(false);
+    } else if (redPinMode) {
+      pinColor = "#FF0000";
+      setRedPin({ x: clickedX, y: clickedY, color: pinColor });
+      setRedPinMode(false);
     }
   };
+
   useEffect(() => {
     if (!selectedFile) {
       setPreview(undefined);
@@ -130,12 +146,6 @@ export const ImageUpload = () => {
     setImage(true);
   }, [acceptedFiles]);
 
-  useEffect(() => {
-    if (pins.length > 0) {
-      setPinMode(false);
-    }
-  }, [pins]);
-
   return (
     <div className="min-h-screen text-white self-center content-center items-center p-5 bg-maroonbg">
       <div
@@ -150,7 +160,7 @@ export const ImageUpload = () => {
         //onChange={(e) => setLocationTitle(e.target.value)}
       />
 
-      <div className="m-10 justify-center">
+      <div className="m-10 flex jusitfy-center items-center">
         {image ? (
           <div
             className="m-10 mt-1"
@@ -165,40 +175,72 @@ export const ImageUpload = () => {
               <div
                 style={{
                   position: "relative",
-                  width: 256,
-                  height: 256,
+                  width: "80vw", 
+                  height: "auto", 
+                  maxWidth: "512px",
                 }}
-                onClick={handleImageClick}
+                onClick={(event) => handleImageClick(event)}
               >
                 <img
                   src={preview}
                   style={{
                     width: "100%",
-                    height: "100%",
+                    height: "auto",
                     objectFit: "cover",
                   }}
                 />
-                {pins.map((pin, index) => (
+                {greenPin && (
                   <div
-                    key={index}
                     style={{
                       width: 10,
                       height: 10,
-                      backgroundColor: pin.color,
+                      backgroundColor: greenPin.color,
                       position: "absolute",
-                      bottom: pin.y,
-                      left: pin.x,
+                      bottom: greenPin.y,
+                      left: greenPin.x,
                     }}
                   />
-                ))}
+                )}
+                {yellowPin && (
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      backgroundColor: yellowPin.color,
+                      position: "absolute",
+                      bottom: yellowPin.y,
+                      left: yellowPin.x,
+                    }}
+                  />
+                )}
+                {redPin && (
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      backgroundColor: redPin.color,
+                      position: "absolute",
+                      bottom: redPin.y,
+                      left: redPin.x,
+                    }}
+                  />
+                )}
               </div>
             )}
           </div>
         ) : (
-          <div className="p-5 m-10 mt-1 items-center flex justify-center">
+          <div className="flex items-center justify-center w-full">
             <Card
-              style={{ height: "25vh" }}
-              className="px-10 py-5 mt-5 w-1/2 flex justify-center"
+              style={{
+                minHeight: "25vh",
+                minWidth: "60vw",
+                padding: "20px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              className="mx-auto"
             >
               <input
                 accept="image/*"
@@ -226,84 +268,122 @@ export const ImageUpload = () => {
           </div>
         )}
       </div>
-      <button
-        className="bg-green-500 text-white px-4 py-2 rounded"
-        onClick={() => {
-          setPinMode(true);
-        }}
-      >
-        Drop Green Pin
-      </button>
+      <div className="flex justify-center items-center">
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded m-2"
+          onClick={() => {
+            setGreenPinMode(true);
+          }}
+          disabled={greenPin !== null}
+        >
+          Start
+        </button>
 
-      <div className="flex mb-10 justify-center">
-        <div className="p-3" style={{ margin: "auto", width: "100%" }}>
-          <h1 className="text-xl font-bold"> Starting Coordinates </h1>
-          <div className="text-black">
-            <p className="text-white">Start X:</p>
-            <NumberInput
-              aria-label="Demo number input"
-              placeholder="Type a number…"
-              value={startX}
-              onChange={(event, val) => setStartX(val)}
-              min={0}
-              max={255}
-            />
-          </div>
+        <button
+          className="bg-yellow-500 text-white px-4 py-2 rounded m-2"
+          onClick={() => {
+            setYellowPinMode(true);
+          }}
+          disabled={yellowPin !== null}
+        >
+          Middle
+        </button>
 
-          <div className="text-black">
-            <p className="text-white">Start Y:</p>
-            <NumberInput
-              aria-label="Demo number input"
-              placeholder="Type a number…"
-              value={startY}
-              onChange={(event, val) => setStartY(val)}
-              min={0}
-              max={255}
-            />
-          </div>
-        </div>
-        <div className="p-3" style={{ margin: "auto", width: "100%" }}>
-          <h1 className="text-xl font-bold"> Destination Coordinates </h1>
-          <div className="text-black">
-            <p className="text-white">End X:</p>
-            <NumberInput
-              aria-label="Demo number input"
-              placeholder="Type a number…"
-              value={endX}
-              onChange={(event, val) => setEndX(val)}
-              min={0}
-              max={255}
-            />
-          </div>
-
-          <div className="text-black">
-            <p className="text-white">End Y:</p>
-            <NumberInput
-              aria-label="Demo number input"
-              placeholder="Type a number…"
-              value={endY}
-              onChange={(event, val) => setEndY(val)}
-              min={0}
-              max={255}
-            />
-          </div>
-        </div>
-        <div className="text-black p-3">
-          <h1 className="text-xl text-white font-bold"> Threshold </h1>
-          <p className="text-gray-500">
-            Default is 10, set to lower value if roads aren't fully detected (or
-            vice versa)
-          </p>
-          <NumberInput
-            aria-label="Demo number input"
-            placeholder="Type a number…"
-            value={threshold}
-            onChange={(event, val) => setThreshold(val)}
-            min={0}
-            max={255}
-          />
-        </div>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded m-2"
+          onClick={() => {
+            setRedPinMode(true);
+          }}
+          disabled={redPin !== null}
+        >
+          End
+        </button>
       </div>
+      <div className="text-black p-3">
+        <h1 className="text-xl text-white font-bold"> Threshold </h1>
+        <p className="text-gray-500">
+          Default is 10, set to lower value if roads aren't fully detected (or
+          vice versa)
+        </p>
+        <NumberInput
+          aria-label="Demo number input"
+          placeholder="Type a number…"
+          value={threshold}
+          onChange={(event, val) => setThreshold(val)}
+          min={0}
+          max={255}
+        />
+      </div>
+
+      {/*<div className="flex mb-10 justify-center">*/}
+      {/*<div className="p-3" style={{ margin: "auto", width: "100%" }}>*/}
+      {/*  <h1 className="text-xl font-bold"> Starting Coordinates </h1>*/}
+      {/*  <div className="text-black">*/}
+      {/*    <p className="text-white">Start X:</p>*/}
+      {/*    <NumberInput*/}
+      {/*      aria-label="Demo number input"*/}
+      {/*      placeholder="Type a number…"*/}
+      {/*      value={startX}*/}
+      {/*      onChange={(event, val) => setStartX(val)}*/}
+      {/*      min={0}*/}
+      {/*      max={255}*/}
+      {/*    />*/}
+      {/*  </div>*/}
+
+      {/*  <div className="text-black">*/}
+      {/*    <p className="text-white">Start Y:</p>*/}
+      {/*    <NumberInput*/}
+      {/*      aria-label="Demo number input"*/}
+      {/*      placeholder="Type a number…"*/}
+      {/*      value={startY}*/}
+      {/*      onChange={(event, val) => setStartY(val)}*/}
+      {/*      min={0}*/}
+      {/*      max={255}*/}
+      {/*    />*/}
+      {/*  </div>*/}
+      {/*</div>*/}
+      {/*<div className="p-3" style={{ margin: "auto", width: "100%" }}>*/}
+      {/*  <h1 className="text-xl font-bold"> Destination Coordinates </h1>*/}
+      {/*  <div className="text-black">*/}
+      {/*    <p className="text-white">End X:</p>*/}
+      {/*    <NumberInput*/}
+      {/*      aria-label="Demo number input"*/}
+      {/*      placeholder="Type a number…"*/}
+      {/*      value={endX}*/}
+      {/*      onChange={(event, val) => setEndX(val)}*/}
+      {/*      min={0}*/}
+      {/*      max={255}*/}
+      {/*    />*/}
+      {/*  </div>*/}
+
+      {/*  <div className="text-black">*/}
+      {/*    <p className="text-white">End Y:</p>*/}
+      {/*    <NumberInput*/}
+      {/*      aria-label="Demo number input"*/}
+      {/*      placeholder="Type a number…"*/}
+      {/*      value={endY}*/}
+      {/*      onChange={(event, val) => setEndY(val)}*/}
+      {/*      min={0}*/}
+      {/*      max={255}*/}
+      {/*    />*/}
+      {/*  </div>*/}
+      {/*</div>*/}
+      {/*  <div className="text-black p-3">*/}
+      {/*    <h1 className="text-xl text-white font-bold"> Threshold </h1>*/}
+      {/*    <p className="text-gray-500">*/}
+      {/*      Default is 10, set to lower value if roads aren't fully detected (or*/}
+      {/*      vice versa)*/}
+      {/*    </p>*/}
+      {/*    <NumberInput*/}
+      {/*      aria-label="Demo number input"*/}
+      {/*      placeholder="Type a number…"*/}
+      {/*      value={threshold}*/}
+      {/*      onChange={(event, val) => setThreshold(val)}*/}
+      {/*      min={0}*/}
+      {/*      max={255}*/}
+      {/*    />*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
       {/*<div style={{ margin: "auto", width: "100%" }}>*/}
       {/*  <p style={{ textAlign: "center" }}>Preview:</p>*/}
