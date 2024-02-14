@@ -5,6 +5,15 @@ module.exports = {
     extend: {
       colors: {
         maroonbg: "#4E0506",
+        maroonhover: "#440000",
+        darkgray: "#222222",
+        grayhover: "#a9a9a9",
+        lightgray: "#d3d3d3",
+        graybg: "#545454",
+      },
+      fontFamily: {
+        anta: ["Anta", "sans-serif"],
+        ubuntu: ["Ubuntu", "sans-serif"],
       },
     },
   },
