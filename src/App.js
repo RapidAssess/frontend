@@ -1,31 +1,20 @@
-import logo from "./logo.svg";
-import "./App.css";
-// import { ImageUpload } from "./home";
+// App.js
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./HomePage"; // Make sure the path matches where you've saved HomePage
 import { ImageUpload } from "./imageupload";
+import Menu from "./Menu";
 
-function App() {
-  return <ImageUpload />;
-}
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
+const App = () => {
+  return (
+    <Router>
+      <Menu />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/imageupload" element={<ImageUpload />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
