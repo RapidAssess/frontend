@@ -42,6 +42,8 @@ export const ImageUpload = () => {
   const [startY, setStartY] = useState(0);
   const [endX, setEndX] = useState(0);
   const [endY, setEndY] = useState(0);
+  const [rescueX, setRescueX] = useState(0);
+  const [rescueY, setRescueY] = useState(0);
   const [threshold, setThreshold] = useState(10);
   const [greenPinMode, setGreenPinMode] = useState(false);
   const [redPinMode, setRedPinMode] = useState(false);
@@ -49,7 +51,10 @@ export const ImageUpload = () => {
   const [greenPin, setGreenPin] = useState(null);
   const [yellowPin, setYellowPin] = useState(null);
   const [redPin, setRedPin] = useState(null);
-  const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
+    const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
+    const [imageWidth, setImageWidth] = useState(0);
+    const [imageHeight, setImageHeight] = useState(0);
+
 
   const [isClearFormVisible, setIsClearFormVisible] = useState(false);
   const [clearOptions, setClearOptions] = useState({
@@ -185,18 +190,27 @@ export const ImageUpload = () => {
   //    setEndX(0);
   //    setEndY(0);
   //  }
-  //};
   const sendFile = async () => {
     console.log(startX, startY, endX, endY);
+    if (!greenPin || !redPin) {
+      alert(
+        "Please place at least start pin and an end pin before submitting.",
+      );
+      return;
+    }
+
     if (image) {
       setIsloading(true);
-      let formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("startX", startX || 0);
-      formData.append("startY", startY || 0);
-      formData.append("endX", endX || 0);
-      formData.append("endY", endY || 0);
-      formData.append("threshold", threshold);
+        let formData = new FormData();
+        console.log(imageWidth);
+        formData.append("startX", (startX) || 0);
+        formData.append("startY", (startY) || 0);
+        formData.append("endX", (endX) || 0);
+        formData.append("endY", (endY) || 0);
+        formData.append("threshold", threshold);
+
+        console.log("formData:");
+        console.log(formData);
 
       try {
         let res = await axios({
@@ -238,17 +252,20 @@ export const ImageUpload = () => {
     let clickedY = boundingBox.bottom - event.clientY;
 
     if (greenPinMode) {
-      pinColor = "#27FF00";
-      setGreenPin({ x: clickedX, y: clickedY, color: pinColor });
+      setStartX(clickedX);
+      setStartY(clickedY);
+      setGreenPin({ x: clickedX, y: clickedY, color: "#27FF00" });
       setGreenPinMode(false);
-    } else if (yellowPinMode) {
-      pinColor = "#FFFF00";
-      setYellowPin({ x: clickedX, y: clickedY, color: pinColor });
-      setYellowPinMode(false);
     } else if (redPinMode) {
-      pinColor = "#FF0000";
-      setRedPin({ x: clickedX, y: clickedY, color: pinColor });
+      setEndX(clickedX);
+      setEndY(clickedY);
+      setRedPin({ x: clickedX, y: clickedY, color: "#FF0000" });
       setRedPinMode(false);
+    } else if (yellowPinMode) {
+      setRescueX(clickedX);
+      setRescueY(clickedY);
+      setYellowPin({ x: clickedX, y: clickedY, color: "#FFFF00" });
+      setYellowPinMode(false);
     }
   };
 
@@ -277,14 +294,34 @@ export const ImageUpload = () => {
     setAdvancedSettingsVisible(!advancedSettingsVisible);
   };
 
-  useEffect(() => {
-    if (!selectedFile) {
-      setPreview(undefined);
+  const handleSave = () => {
+    if (!result) {
+      alert("Please submit an image and wait for the result before saving.");
       return;
     }
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreview(objectUrl);
-  }, [selectedFile]);
+
+    console.log("Saving the result image...");
+  };
+
+    useEffect(() => {
+        if (!selectedFile) {
+            setPreview(undefined);
+            return;
+        }
+        const objectUrl = URL.createObjectURL(selectedFile);
+        setPreview(objectUrl);
+
+        const img = new Image();
+        img.onload = () => {
+            const imageWid = img.width;
+            const imageH = img.height;
+
+            setImageWidth(imageWid);
+            setImageHeight(imageH);
+            console.log("Image dimensions:", imageWidth, imageHeight);
+        };
+        img.src = objectUrl;
+    }, [selectedFile]);
 
   useEffect(() => {
     if (!preview) {
@@ -345,7 +382,8 @@ export const ImageUpload = () => {
                   }}
                   onClick={(event) => handleImageClick(event)}
                 >
-                  <img
+                 <img
+                  id="imagepreview"
                     src={preview}
                     style={{
                       width: "100%",
@@ -532,7 +570,10 @@ export const ImageUpload = () => {
         >
           Submit
         </button>
-        <button className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800">
+        <button
+          className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800"
+          onClick={handleSave}
+        >
           Save
         </button>
         <button
@@ -562,7 +603,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.greenPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="greenPin"> Green Pin</label>
+              <label htmlFor="greenPin"> Start Pin</label>
             </div>
             <div>
               <input
@@ -572,7 +613,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.yellowPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="yellowPin"> Yellow Pin</label>
+              <label htmlFor="yellowPin"> Rescue Pin</label>
             </div>
             <div>
               <input
@@ -582,7 +623,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.redPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="redPin"> Red Pin</label>
+              <label htmlFor="redPin"> End Pin</label>
             </div>
             {/*<div>*/}
             {/*  <input*/}

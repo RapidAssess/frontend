@@ -6,7 +6,7 @@ import RouteIcon from "@mui/icons-material/Route";
 
 const Menu = () => {
   return (
-    <nav className="bg-maroonbg p-2 flex">
+    <nav className="bg-maroonbg p-2 flex w-screen">
       <IconButton color="inherit">
         <RouteIcon style={{ color: "white", fontSize: "2rem" }} />
       </IconButton>
