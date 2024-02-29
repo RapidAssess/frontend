@@ -41,7 +41,9 @@ export const ImageUpload = () => {
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [endX, setEndX] = useState(0);
-  const [endY, setEndY] = useState(0);
+    const [endY, setEndY] = useState(0);
+    const [rescueX, setRescueX] = useState(0);
+    const [rescueY, setRescueY] = useState(0);
   const [threshold, setThreshold] = useState(10);
   const [greenPinMode, setGreenPinMode] = useState(false);
   const [redPinMode, setRedPinMode] = useState(false);
@@ -187,7 +189,15 @@ export const ImageUpload = () => {
   //  }
   //};
   const sendFile = async () => {
-    console.log(startX, startY, endX, endY);
+      console.log(startX, startY, endX, endY);
+
+      if (!greenPin || !redPin) {
+          alert(
+              "Please place at least start pin and an end pin before submitting.",
+          );
+          return;
+      }
+
     if (image) {
       setIsloading(true);
       let formData = new FormData();
@@ -196,6 +206,8 @@ export const ImageUpload = () => {
       formData.append("startY", startY || 0);
       formData.append("endX", endX || 0);
       formData.append("endY", endY || 0);
+      formData.append("middleX", rescueX || 0);
+      formData.append("middleY", rescueY || 0);
       formData.append("threshold", threshold);
 
       try {
@@ -238,16 +250,20 @@ export const ImageUpload = () => {
     let clickedY = boundingBox.bottom - event.clientY;
 
     if (greenPinMode) {
-      pinColor = "#27FF00";
-      setGreenPin({ x: clickedX, y: clickedY, color: pinColor });
+      setStartX(clickedX);
+      setStartY(clickedY);
+      setGreenPin({ x: clickedX, y: clickedY, color: "#27FF00" });
       setGreenPinMode(false);
     } else if (yellowPinMode) {
-      pinColor = "#FFFF00";
-      setYellowPin({ x: clickedX, y: clickedY, color: pinColor });
+        setRescueX(clickedX);
+        setRescueY(clickedY);
+        setYellowPin({ x: clickedX, y: clickedY, color: "#FFFF00" });
+        setYellowPinMode(false);
       setYellowPinMode(false);
     } else if (redPinMode) {
-      pinColor = "#FF0000";
-      setRedPin({ x: clickedX, y: clickedY, color: pinColor });
+        setEndX(clickedX);
+        setEndY(clickedY);
+        setRedPin({ x: clickedX, y: clickedY, color: "#FF0000" });
       setRedPinMode(false);
     }
   };
@@ -275,7 +291,17 @@ export const ImageUpload = () => {
   };
   const toggleAdvancedSettings = () => {
     setAdvancedSettingsVisible(!advancedSettingsVisible);
-  };
+    };
+
+    const handleSave = () => {
+        if (!result) {
+            alert("Please submit an image and wait for the result before saving.");
+            return;
+        }
+
+        console.log("Saving the result image...");
+    };
+
 
   useEffect(() => {
     if (!selectedFile) {
@@ -532,7 +558,7 @@ export const ImageUpload = () => {
         >
           Submit
         </button>
-        <button className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800">
+              <button className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800" onClick={handleSave}>
           Save
         </button>
         <button
@@ -562,7 +588,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.greenPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="greenPin"> Green Pin</label>
+              <label htmlFor="greenPin"> Start Pin</label>
             </div>
             <div>
               <input
@@ -572,7 +598,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.yellowPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="yellowPin"> Yellow Pin</label>
+              <label htmlFor="yellowPin"> Rescue Pin</label>
             </div>
             <div>
               <input
@@ -582,7 +608,7 @@ export const ImageUpload = () => {
                 checked={clearOptions.redPin}
                 onChange={handleClearOptionChange}
               />
-              <label htmlFor="redPin"> Red Pin</label>
+              <label htmlFor="redPin"> End Pin</label>
             </div>
             {/*<div>*/}
             {/*  <input*/}
