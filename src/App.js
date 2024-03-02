@@ -1,10 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Menu from "./Menu";
+import NavBar from "./NavBar";
 import Login from "./Login";
 import SignUp from "./SignUp";
-import Dashboard from "./Dashboard";
 import HomePage from "./HomePage"; // Make sure to import the HomePage component
+import Settings from "./UserSettings";
 
 function getToken() {
     return sessionStorage.getItem('userToken');
@@ -16,14 +16,15 @@ function App() {
     return (
         <>
             <Router>
-                {token && <Menu />}
+                {token && <NavBar />}
                 <Routes>
                     {/* Redirect to HomePage if token exists, otherwise go to Login */}
                     <Route path="/" element={token ? <HomePage /> : <Navigate replace to="/login" />} />
                     <Route path="/login" element={!token ? <Login /> : <Navigate replace to="/" />} />
                     <Route path="/signup" element={!token ? <SignUp /> : <Navigate replace to="/" />} />
-                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/home"  element={token ? <HomePage /> : <Navigate replace to="/" />}/>
                     {/* Other routes can go here */}
+                    <Route path="/settings"  element={token ? <Settings /> : <Navigate replace to="/" />}/>
                 </Routes>
             </Router>
         </>
