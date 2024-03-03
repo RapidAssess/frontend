@@ -213,7 +213,7 @@ export const ImageUpload = () => {
       try {
         let res = await axios({
           method: "post",
-          url: "http://127.0.0.1:5000/predict",
+          url: "http://127.0.0.1:5001/predict",
           data: formData,
           responseType: "blob",
         });
@@ -371,14 +371,16 @@ export const ImageUpload = () => {
                   }}
                   onClick={(event) => handleImageClick(event)}
                 >
-                  <img
-                    src={preview}
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      objectFit: "cover",
-                    }}
-                  />
+                                  <img
+                                      src={preview}
+                                      style={{
+                                          width: "256px", // Ensure this is a string with 'px' to denote pixels
+                                          height: "256px", // Ensure this is a string with 'px' to denote pixels
+                                          margin: "auto",
+                                          display: "block",
+                                          objectFit: "cover",
+                                      }}
+                                  />
                   {greenPin && (
                     <div
                       style={{
