@@ -26,6 +26,7 @@ function Login(props) {
         .then((response) => {
             if (response.data["user_token"]) {
                 sessionStorage.setItem("userToken", response.data["user_token"]);
+                sessionStorage.setItem("userId", response.data["user_id"]); 
                 console.log(response.user_token);
                 console.log(response.data);
                 window.location.href="/home";

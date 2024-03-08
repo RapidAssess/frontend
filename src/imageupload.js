@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
@@ -51,7 +51,16 @@ export const ImageUpload = () => {
   const [greenPin, setGreenPin] = useState(null);
   const [yellowPin, setYellowPin] = useState(null);
   const [redPin, setRedPin] = useState(null);
-  const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
+    const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
+    const [locationTitle, setLocationTitle] = useState("");
+    const userToken = sessionStorage.getItem('userID');
+    const imgRef = useRef(null);
+    const [imageWidth, setImageWidth] = useState(0);
+    const [imageHeight, setImageHeight] = useState(0);
+    const canvasRef = useRef(null);
+
+
+
 
   const [isClearFormVisible, setIsClearFormVisible] = useState(false);
   const [clearOptions, setClearOptions] = useState({
@@ -188,46 +197,67 @@ export const ImageUpload = () => {
   //    setEndY(0);
   //  }
   //};
-  const sendFile = async () => {
-      console.log(startX, startY, endX, endY);
+    const sendFile = async () => {
+        console.log(startX, startY, endX, endY);
 
-      if (!greenPin || !redPin) {
-          alert(
-              "Please place at least start pin and an end pin before submitting.",
-          );
-          return;
-      }
+        if (!imgRef.current) {
+            console.error("No image to send");
+            return;
+        }
 
-    if (image) {
-      setIsloading(true);
-      let formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("startX", startX || 0);
-      formData.append("startY", startY || 0);
-      formData.append("endX", endX || 0);
-      formData.append("endY", endY || 0);
-      formData.append("middleX", rescueX || 0);
-      formData.append("middleY", rescueY || 0);
-      formData.append("threshold", threshold);
 
-      try {
-        let res = await axios({
-          method: "post",
-          url: "http://127.0.0.1:5001/predict",
-          data: formData,
-          responseType: "blob",
-        });
+        if (!greenPin || !redPin) {
+            alert(
+                "Please place at least start pin and an end pin before submitting.",
+            );
+            return;
+        }
 
-        var url = URL.createObjectURL(res.data);
-        setPreview(url);
-        setResult(url);
-      } catch (error) {
-        console.error("Error processing the image: ", error);
-      } finally {
-        setIsloading(false);
-      }
-    }
-  };
+        // Create a canvas element
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 256;
+
+        // Draw the image onto the canvas
+        ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
+
+
+
+        // Convert the canvas to a Blob and send it
+        // Convert the canvas to a Blob and send it
+        canvas.toBlob(async (blob) => {
+            let formData = new FormData();
+            formData.append("file", blob, "image.jpeg"); // Specify the file extension as .jpeg
+
+            setIsloading(true);
+            formData.append("startX", startX || 0);
+            formData.append("startY", startY || 0);
+            formData.append("endX", endX || 0);
+            formData.append("endY", endY || 0);
+            formData.append("middleX", rescueX || 0);
+            formData.append("middleY", rescueY || 0);
+            formData.append("threshold", threshold);
+
+            try {
+                let res = await axios({
+                    method: "post",
+                    url: "http://127.0.0.1:5001/predict",
+                    data: formData,
+                    responseType: "blob",
+                });
+
+                var url = URL.createObjectURL(res.data);
+                setPreview(url); // Update preview with the response
+                setResult(url);  // Update the result for further use
+            } catch (error) {
+                console.error("Error processing the image: ", error);
+            } finally {
+                setIsloading(false);
+            }
+        }, 'image/jpeg', 0.95); // Use 'image/jpeg' as the type, and 0.95 as the quality argument
+
+      };
 
   const clearData = () => {
     setData(null);
@@ -241,29 +271,47 @@ export const ImageUpload = () => {
     setGreenPinMode(false);
     setRedPinMode(false);
     setYellowPinMode(false);
-  };
+    };
+
 
   const handleImageClick = (event) => {
-    let pinColor = "";
-    const boundingBox = event.currentTarget.getBoundingClientRect();
-    let clickedX = event.clientX - boundingBox.left;
-    let clickedY = boundingBox.bottom - event.clientY;
+     const imgElement = imgRef.current;
+
+    // Get bounding rectangle of image
+    const rect = imgElement.getBoundingClientRect();
+
+    // Calculate click coordinates within the image
+    const scaleX = imgElement.naturalWidth / rect.width; // Scale factor for width
+    const scaleY = imgElement.naturalHeight / rect.height;
+      const clickedX = (event.clientX - rect.left);
+      const clickedY = (rect.bottom - event.clientY);
+
+      const boundingBox = event.currentTarget.getBoundingClientRect();
+      let imageclickedX = event.clientX - boundingBox.left;
+      let imageclickedY = boundingBox.bottom - event.clientY;
+
+
+      const adjustedX = clickedX * scaleX;
+      const adjustedY = clickedY * scaleY;
+
+      console.log(clickedX);
+      console.log(clickedY);
 
     if (greenPinMode) {
-      setStartX(clickedX);
-      setStartY(clickedY);
-      setGreenPin({ x: clickedX, y: clickedY, color: "#27FF00" });
+      setStartX(adjustedX);
+        setStartY(adjustedY);
+      setGreenPin({ x: imageclickedX, y: imageclickedY, color: "#27FF00" });
       setGreenPinMode(false);
     } else if (yellowPinMode) {
-        setRescueX(clickedX);
-        setRescueY(clickedY);
-        setYellowPin({ x: clickedX, y: clickedY, color: "#FFFF00" });
+        setRescueX(adjustedX);
+        setRescueY(adjustedY);
+        setYellowPin({ x: imageclickedX, y: imageclickedY, color: "#FFFF00" });
         setYellowPinMode(false);
       setYellowPinMode(false);
     } else if (redPinMode) {
-        setEndX(clickedX);
-        setEndY(clickedY);
-        setRedPin({ x: clickedX, y: clickedY, color: "#FF0000" });
+        setEndX(adjustedX);
+        setEndY(adjustedY);
+        setRedPin({ x: imageclickedX, y: imageclickedY, color: "#FF0000" });
       setRedPinMode(false);
     }
   };
@@ -288,29 +336,68 @@ export const ImageUpload = () => {
       default:
         break;
     }
-  };
+    };
+
+
+    const handleSave = async () => {
+        if (!selectedFile) {
+            alert("Please select an image to save.");
+            return;
+        }
+        if (!locationTitle) {
+            alert("Please enter a location title.");
+            return;
+        }
+
+
+        const formData = new FormData();
+        formData.append("image", selectedFile); 
+        formData.append("name", locationTitle); 
+        formData.append("user_id", userToken);
+
+        try {
+            const response = await axios({
+                method: "post",
+                url: "/image", 
+                data: formData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+        } catch (error) {
+            console.error("Error saving the image and location:", error);
+            alert("Failed to save the image and location.");
+        }
+    };
+
+
   const toggleAdvancedSettings = () => {
     setAdvancedSettingsVisible(!advancedSettingsVisible);
     };
 
-    const handleSave = () => {
-        if (!result) {
-            alert("Please submit an image and wait for the result before saving.");
-            return;
+
+
+
+
+    useEffect(() => {
+        if (selectedFile) {
+            const objectUrl = URL.createObjectURL(selectedFile);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 256, 256);
+                const resizedImageURL = canvas.toDataURL('image/jpeg');
+                setPreview(resizedImageURL);
+            };
+            img.src = objectUrl;
+            return () => URL.revokeObjectURL(objectUrl);
         }
-
-        console.log("Saving the result image...");
-    };
+    }, [selectedFile]);
 
 
-  useEffect(() => {
-    if (!selectedFile) {
-      setPreview(undefined);
-      return;
-    }
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreview(objectUrl);
-  }, [selectedFile]);
 
   useEffect(() => {
     if (!preview) {
@@ -342,13 +429,13 @@ export const ImageUpload = () => {
         <b>CREATE ROUTE</b>
       </h1>
       <div className="bg-white rounded p-6 m-3">
-        <input
-          type="text"
-          placeholder="Enter Location Title"
-          className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
-          //value={locationTitle}
-          //onChange={(e) => setLocationTitle(e.target.value)}
-        />
+              <input
+                  type="text"
+                  placeholder="Enter Location Title"
+                  className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
+                  value={locationTitle}
+                  onChange={(e) => setLocationTitle(e.target.value)}
+              />
 
         <div className="m-10 flex jusitfy-center items-center">
           {image ? (
@@ -373,12 +460,11 @@ export const ImageUpload = () => {
                 >
                                   <img
                                       src={preview}
+                                      ref={imgRef}
                                       style={{
                                           width: "256px", // Ensure this is a string with 'px' to denote pixels
                                           height: "256px", // Ensure this is a string with 'px' to denote pixels
                                           margin: "auto",
-                                          display: "block",
-                                          objectFit: "cover",
                                       }}
                                   />
                   {greenPin && (

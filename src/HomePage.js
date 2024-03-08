@@ -3,12 +3,26 @@ import { Button, Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { ImageUpload } from "./imageupload";
 import AddIcon from "@mui/icons-material/Add";
+import { useEffect } from 'react';
+import axios from 'axios';
 
 const HomePage = () => {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+    const handleClose = () => setOpen(false);
+
+    const [images, setImages] = useState([]); // State to store images
+
+    useEffect(() => {
+        const userId = sessionStorage.getItem('userId'); // Retrieve the userId, adjust based on your auth strategy
+        axios.get(`/images/${userId}`)
+            .then(response => {
+                setImages(response.data.images); // Assuming the response contains an 'images' array
+            })
+            .catch(error => console.error("Error fetching images:", error));
+    }, []);
+
 
   const modalStyle = {
     position: "absolute",
@@ -30,7 +44,13 @@ const HomePage = () => {
     <div
       className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto"
       style={{ padding: 20 }}
-    >
+      >
+          {images.map((image, index) => (
+              <div key={index}>
+                  <h3>{image.name}</h3> {/* Display image name */}
+                  <img src={`data:image/jpeg;base64,${image.data}`} alt="Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+              </div>
+          ))}
       <Button
         variant="contained"
         onClick={handleOpen}

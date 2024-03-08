@@ -27,6 +27,8 @@ function SignUp(props) {
         })
         .then((response) => {
             props.setToken(response.data.access_token)
+            sessionStorage.setItem("userToken", response.data["user_token"]);
+            sessionStorage.setItem("userId", response.data["user_id"]); 
         }).catch((error) => {
             if (error.response) {
                 console.log(error.response)
