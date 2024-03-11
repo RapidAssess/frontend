@@ -5,6 +5,7 @@ import { ImageUpload } from "./imageupload";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect } from 'react';
 import axios from 'axios';
+import ImagesList from './ImagesList';
 
 const HomePage = () => {
   const [open, setOpen] = useState(false);
@@ -45,12 +46,7 @@ const HomePage = () => {
       className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto"
       style={{ padding: 20 }}
       >
-          {images.map((image, index) => (
-              <div key={index}>
-                  <h3>{image.name}</h3> {/* Display image name */}
-                  <img src={`data:image/jpeg;base64,${image.data}`} alt="Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
-              </div>
-          ))}
+          <ImagesList />
       <Button
         variant="contained"
         onClick={handleOpen}
