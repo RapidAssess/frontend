@@ -9,36 +9,51 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 function Login(props) {
-    const [loginForm, setLoginForm] = useState({
-        username:"",
-        password:""
+  const [loginForm, setLoginForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  async function logMeIn(event) {
+    axios({
+      method: "POST",
+      url: "/login",
+      data: {
+        username: loginForm.username,
+        password: loginForm.password,
+      },
     })
+      .then((response) => {
+        if (response.data["user_token"]) {
+          sessionStorage.setItem("userToken", response.data["user_token"]);
+          sessionStorage.setItem("userId", response.data["user_id"]);
+          console.log(response.user_token);
+          console.log(response.data);
+          window.location.href = "/home";
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
 
-    async function logMeIn(event) {
-        axios({
-            method:"POST",
-            url:"/login",
-            data:{
-                username: loginForm.username,
-                password: loginForm.password
-            }
-        })
-        .then((response) => {
-            if (response.data["user_token"]) {
-                sessionStorage.setItem("userToken", response.data["user_token"]);
-                sessionStorage.setItem("userId", response.data["user_id"]); 
-                console.log(response.user_token);
-                console.log(response.data);
-                window.location.href="/home";
-            }
+    setLoginForm({
+      username: "",
+      password: "",
+    });
 
-        }).catch((error) => {
-            if (error.response) {
-                console.log(error.response)
-                console.log(error.response.status)
-                console.log(error.response.headers)
-            }
-        })
+    event.preventDefault();
+  }
+  function handleChange(event) {
+    const { value, name } = event.target;
+    setLoginForm((prevNote) => ({
+      ...prevNote,
+      [name]: value,
+    }));
+  }
 
         setLoginForm(({
             username:"",

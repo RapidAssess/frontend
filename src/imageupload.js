@@ -40,9 +40,9 @@ export const ImageUpload = () => {
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [endX, setEndX] = useState(0);
-    const [endY, setEndY] = useState(0);
-    const [rescueX, setRescueX] = useState(0);
-    const [rescueY, setRescueY] = useState(0);
+  const [endY, setEndY] = useState(0);
+  const [rescueX, setRescueX] = useState(0);
+  const [rescueY, setRescueY] = useState(0);
   const [threshold, setThreshold] = useState(10);
   const [greenPinMode, setGreenPinMode] = useState(false);
   const [redPinMode, setRedPinMode] = useState(false);
@@ -50,16 +50,13 @@ export const ImageUpload = () => {
   const [greenPin, setGreenPin] = useState(null);
   const [yellowPin, setYellowPin] = useState(null);
   const [redPin, setRedPin] = useState(null);
-    const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
-    const [locationTitle, setLocationTitle] = useState("");
-    const userToken = sessionStorage.getItem('userID');
-    const imgRef = useRef(null);
-    const [imageWidth, setImageWidth] = useState(0);
-    const [imageHeight, setImageHeight] = useState(0);
-    const canvasRef = useRef(null);
-
-
-
+  const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
+  const [locationTitle, setLocationTitle] = useState("");
+  const userToken = sessionStorage.getItem("userId");
+  const imgRef = useRef(null);
+  const [imageWidth, setImageWidth] = useState(0);
+  const [imageHeight, setImageHeight] = useState(0);
+  const canvasRef = useRef(null);
 
   const [isClearFormVisible, setIsClearFormVisible] = useState(false);
   const [clearOptions, setClearOptions] = useState({
@@ -196,67 +193,62 @@ export const ImageUpload = () => {
   //    setEndY(0);
   //  }
   //};
-    const sendFile = async () => {
-        console.log(startX, startY, endX, endY);
+  const sendFile = async () => {
+    console.log(startX, startY, endX, endY);
 
-        if (!imgRef.current) {
-            console.error("No image to send");
-            return;
+    if (!imgRef.current) {
+      console.error("No image to send");
+      return;
+    }
+
+    if (!greenPin || !redPin) {
+      alert(
+        "Please place at least start pin and an end pin before submitting.",
+      );
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 256;
+    canvas.height = 256;
+
+    ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(
+      async (blob) => {
+        let formData = new FormData();
+        formData.append("file", blob, "image.jpeg");
+        setIsloading(true);
+        formData.append("startX", startX || 0);
+        formData.append("startY", startY || 0);
+        formData.append("endX", endX || 0);
+        formData.append("endY", endY || 0);
+        formData.append("middleX", rescueX || 0);
+        formData.append("middleY", rescueY || 0);
+        formData.append("threshold", threshold);
+
+        try {
+          let res = await axios({
+            method: "post",
+            url: "http://127.0.0.1:5001/predict",
+            data: formData,
+            responseType: "blob",
+          });
+
+          var url = URL.createObjectURL(res.data);
+          setPreview(url);
+          setResult(url);
+        } catch (error) {
+          console.error("Error processing the image: ", error);
+        } finally {
+          setIsloading(false);
         }
-
-
-        if (!greenPin || !redPin) {
-            alert(
-                "Please place at least start pin and an end pin before submitting.",
-            );
-            return;
-        }
-
-        // Create a canvas element
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 256;
-
-        // Draw the image onto the canvas
-        ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
-
-
-
-        // Convert the canvas to a Blob and send it
-        // Convert the canvas to a Blob and send it
-        canvas.toBlob(async (blob) => {
-            let formData = new FormData();
-            formData.append("file", blob, "image.jpeg"); // Specify the file extension as .jpeg
-
-            setIsloading(true);
-            formData.append("startX", startX || 0);
-            formData.append("startY", startY || 0);
-            formData.append("endX", endX || 0);
-            formData.append("endY", endY || 0);
-            formData.append("middleX", rescueX || 0);
-            formData.append("middleY", rescueY || 0);
-            formData.append("threshold", threshold);
-
-            try {
-                let res = await axios({
-                    method: "post",
-                    url: "http://127.0.0.1:5001/predict",
-                    data: formData,
-                    responseType: "blob",
-                });
-
-                var url = URL.createObjectURL(res.data);
-                setPreview(url); // Update preview with the response
-                setResult(url);  // Update the result for further use
-            } catch (error) {
-                console.error("Error processing the image: ", error);
-            } finally {
-                setIsloading(false);
-            }
-        }, 'image/jpeg', 0.95); // Use 'image/jpeg' as the type, and 0.95 as the quality argument
-
-      };
+      },
+      "image/jpeg",
+      0.95,
+    );
+  };
 
   const clearData = () => {
     setData(null);
@@ -270,11 +262,10 @@ export const ImageUpload = () => {
     setGreenPinMode(false);
     setRedPinMode(false);
     setYellowPinMode(false);
-    };
-
+  };
 
   const handleImageClick = (event) => {
-     const imgElement = imgRef.current;
+    const imgElement = imgRef.current;
 
     // Get bounding rectangle of image
     const rect = imgElement.getBoundingClientRect();
@@ -282,35 +273,34 @@ export const ImageUpload = () => {
     // Calculate click coordinates within the image
     const scaleX = imgElement.naturalWidth / rect.width; // Scale factor for width
     const scaleY = imgElement.naturalHeight / rect.height;
-      const clickedX = (event.clientX - rect.left);
-      const clickedY = (rect.bottom - event.clientY);
+    const clickedX = event.clientX - rect.left;
+    const clickedY = rect.bottom - event.clientY;
 
-      const boundingBox = event.currentTarget.getBoundingClientRect();
-      let imageclickedX = event.clientX - boundingBox.left;
-      let imageclickedY = boundingBox.bottom - event.clientY;
+    const boundingBox = event.currentTarget.getBoundingClientRect();
+    let imageclickedX = event.clientX - boundingBox.left;
+    let imageclickedY = boundingBox.bottom - event.clientY;
 
+    const adjustedX = clickedX * scaleX;
+    const adjustedY = clickedY * scaleY;
 
-      const adjustedX = clickedX * scaleX;
-      const adjustedY = clickedY * scaleY;
-
-      console.log(clickedX);
-      console.log(clickedY);
+    console.log(clickedX);
+    console.log(clickedY);
 
     if (greenPinMode) {
       setStartX(adjustedX);
-        setStartY(adjustedY);
+      setStartY(adjustedY);
       setGreenPin({ x: imageclickedX, y: imageclickedY, color: "#27FF00" });
       setGreenPinMode(false);
     } else if (yellowPinMode) {
-        setRescueX(adjustedX);
-        setRescueY(adjustedY);
-        setYellowPin({ x: imageclickedX, y: imageclickedY, color: "#FFFF00" });
-        setYellowPinMode(false);
+      setRescueX(adjustedX);
+      setRescueY(adjustedY);
+      setYellowPin({ x: imageclickedX, y: imageclickedY, color: "#FFFF00" });
+      setYellowPinMode(false);
       setYellowPinMode(false);
     } else if (redPinMode) {
-        setEndX(adjustedX);
-        setEndY(adjustedY);
-        setRedPin({ x: imageclickedX, y: imageclickedY, color: "#FF0000" });
+      setEndX(adjustedX);
+      setEndY(adjustedY);
+      setRedPin({ x: imageclickedX, y: imageclickedY, color: "#FF0000" });
       setRedPinMode(false);
     }
   };
@@ -335,68 +325,59 @@ export const ImageUpload = () => {
       default:
         break;
     }
-    };
+  };
 
+  const handleSave = async () => {
+    if (!selectedFile) {
+      alert("Please select an image to save.");
+      return;
+    }
+    if (!locationTitle) {
+      alert("Please enter a location title.");
+      return;
+    }
 
-    const handleSave = async () => {
-        if (!selectedFile) {
-            alert("Please select an image to save.");
-            return;
-        }
-        if (!locationTitle) {
-            alert("Please enter a location title.");
-            return;
-        }
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+    formData.append("name", locationTitle);
+    formData.append("user_id", userToken);
 
-
-        const formData = new FormData();
-        formData.append("image", selectedFile); 
-        formData.append("name", locationTitle); 
-        formData.append("user_id", userToken);
-
-        try {
-            const response = await axios({
-                method: "post",
-                url: "/image", 
-                data: formData,
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-        } catch (error) {
-            console.error("Error saving the image and location:", error);
-            alert("Failed to save the image and location.");
-        }
-    };
-
+    try {
+      const response = await axios({
+        method: "post",
+        url: "/image",
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error("Error saving the image and location:", error);
+      alert("Failed to save the image and location.");
+    }
+  };
 
   const toggleAdvancedSettings = () => {
     setAdvancedSettingsVisible(!advancedSettingsVisible);
-    };
+  };
 
-
-
-
-
-    useEffect(() => {
-        if (selectedFile) {
-            const objectUrl = URL.createObjectURL(selectedFile);
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, 256, 256);
-                const resizedImageURL = canvas.toDataURL('image/jpeg');
-                setPreview(resizedImageURL);
-            };
-            img.src = objectUrl;
-            return () => URL.revokeObjectURL(objectUrl);
-        }
-    }, [selectedFile]);
-
-
+  useEffect(() => {
+    if (selectedFile) {
+      const objectUrl = URL.createObjectURL(selectedFile);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, 256, 256);
+        const resizedImageURL = canvas.toDataURL("image/jpeg");
+        setPreview(resizedImageURL);
+      };
+      img.src = objectUrl;
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [selectedFile]);
 
   useEffect(() => {
     if (!preview) {
@@ -428,13 +409,13 @@ export const ImageUpload = () => {
         <b>CREATE ROUTE</b>
       </h1>
       <div className="bg-white rounded p-6 m-3">
-              <input
-                  type="text"
-                  placeholder="Enter Location Title"
-                  className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
-                  value={locationTitle}
-                  onChange={(e) => setLocationTitle(e.target.value)}
-              />
+        <input
+          type="text"
+          placeholder="Enter Location Title"
+          className="px-4 py-2 mt-3 border rounded focus:outline-none focus:border-black-500 text-black w-1/2"
+          value={locationTitle}
+          onChange={(e) => setLocationTitle(e.target.value)}
+        />
 
         <div className="m-10 flex jusitfy-center items-center">
           {image ? (
@@ -457,15 +438,15 @@ export const ImageUpload = () => {
                   }}
                   onClick={(event) => handleImageClick(event)}
                 >
-                                  <img
-                                      src={preview}
-                                      ref={imgRef}
-                                      style={{
-                                          width: "256px", // Ensure this is a string with 'px' to denote pixels
-                                          height: "256px", // Ensure this is a string with 'px' to denote pixels
-                                          margin: "auto",
-                                      }}
-                                  />
+                  <img
+                    src={preview}
+                    ref={imgRef}
+                    style={{
+                      width: "256px", // Ensure this is a string with 'px' to denote pixels
+                      height: "256px", // Ensure this is a string with 'px' to denote pixels
+                      margin: "auto",
+                    }}
+                  />
                   {greenPin && (
                     <div
                       style={{
@@ -645,7 +626,10 @@ export const ImageUpload = () => {
         >
           Submit
         </button>
-              <button className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800" onClick={handleSave}>
+        <button
+          className="bg-maroonbg hover:bg-maroonhover text-white py-2 px-4 rounded hover:border-red-800"
+          onClick={handleSave}
+        >
           Save
         </button>
         <button
@@ -738,147 +722,6 @@ export const ImageUpload = () => {
           </form>
         </Box>
       </Modal>
-      {/*<div className="flex mb-10 justify-center">*/}
-      {/*<div className="p-3" style={{ margin: "auto", width: "100%" }}>*/}
-      {/*  <h1 className="text-xl font-bold"> Starting Coordinates </h1>*/}
-      {/*  <div className="text-black">*/}
-      {/*    <p className="text-white">Start X:</p>*/}
-      {/*    <NumberInput*/}
-      {/*      aria-label="Demo number input"*/}
-      {/*      placeholder="Type a number…"*/}
-      {/*      value={startX}*/}
-      {/*      onChange={(event, val) => setStartX(val)}*/}
-      {/*      min={0}*/}
-      {/*      max={255}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-
-      {/*  <div className="text-black">*/}
-      {/*    <p className="text-white">Start Y:</p>*/}
-      {/*    <NumberInput*/}
-      {/*      aria-label="Demo number input"*/}
-      {/*      placeholder="Type a number…"*/}
-      {/*      value={startY}*/}
-      {/*      onChange={(event, val) => setStartY(val)}*/}
-      {/*      min={0}*/}
-      {/*      max={255}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {/*<div className="p-3" style={{ margin: "auto", width: "100%" }}>*/}
-      {/*  <h1 className="text-xl font-bold"> Destination Coordinates </h1>*/}
-      {/*  <div className="text-black">*/}
-      {/*    <p className="text-white">End X:</p>*/}
-      {/*    <NumberInput*/}
-      {/*      aria-label="Demo number input"*/}
-      {/*      placeholder="Type a number…"*/}
-      {/*      value={endX}*/}
-      {/*      onChange={(event, val) => setEndX(val)}*/}
-      {/*      min={0}*/}
-      {/*      max={255}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-
-      {/*  <div className="text-black">*/}
-      {/*    <p className="text-white">End Y:</p>*/}
-      {/*    <NumberInput*/}
-      {/*      aria-label="Demo number input"*/}
-      {/*      placeholder="Type a number…"*/}
-      {/*      value={endY}*/}
-      {/*      onChange={(event, val) => setEndY(val)}*/}
-      {/*      min={0}*/}
-      {/*      max={255}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {/*  <div className="text-black p-3">*/}
-      {/*    <h1 className="text-xl text-white font-bold"> Threshold </h1>*/}
-      {/*    <p className="text-gray-500">*/}
-      {/*      Default is 10, set to lower value if roads aren't fully detected (or*/}
-      {/*      vice versa)*/}
-      {/*    </p>*/}
-      {/*    <NumberInput*/}
-      {/*      aria-label="Demo number input"*/}
-      {/*      placeholder="Type a number…"*/}
-      {/*      value={threshold}*/}
-      {/*      onChange={(event, val) => setThreshold(val)}*/}
-      {/*      min={0}*/}
-      {/*      max={255}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-
-      {/*<div style={{ margin: "auto", width: "100%" }}>*/}
-      {/*  <p style={{ textAlign: "center" }}>Preview:</p>*/}
-      {/*  {preview && (*/}
-      {/*    <div*/}
-      {/*      style={{*/}
-      {/*        margin: "auto",*/}
-      {/*        // display: "inline-block",*/}
-      {/*        width: 256,*/}
-      {/*        height: 256,*/}
-      {/*        position: "relative",*/}
-      {/*        // zIndex: 1,*/}
-      {/*      }}*/}
-      {/*    >*/}
-      {/*      <div*/}
-      {/*        style={{*/}
-      {/*          width: 10,*/}
-      {/*          height: 10,*/}
-      {/*          backgroundColor: "#27FF00",*/}
-      {/*          position: "absolute",*/}
-      {/*          bottom: startY,*/}
-      {/*          left: startX,*/}
-      {/*        }}*/}
-      {/*      />*/}
-      {/*      <div*/}
-      {/*        style={{*/}
-      {/*          width: 10,*/}
-      {/*          height: 10,*/}
-      {/*          backgroundColor: "red",*/}
-      {/*          position: "absolute",*/}
-      {/*          bottom: endY,*/}
-      {/*          left: endX,*/}
-      {/*        }}*/}
-      {/*      />*/}
-      {/*      <img*/}
-      {/*        src={preview}*/}
-      {/*        style={{*/}
-      {/*          margin: "auto",*/}
-      {/*          display: "block",*/}
-      {/*          width: 256,*/}
-      {/*          height: 256,*/}
-      {/*          // position: "absolute",*/}
-      {/*          // zIndex: 2,*/}
-      {/*        }}*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*</div>*/}
-
-      {/*<div className="flex justify-center">*/}
-      {/*  <ButtonGroup className="m-1.5">*/}
-      {/*    <Button onClick={sendFile}>Submit</Button>*/}
-      {/*    <Button variant="contained" color="error" onClick={clearData}>*/}
-      {/*      Clear*/}
-      {/*    </Button>*/}
-      {/*  </ButtonGroup>*/}
-      {/*</div>*/}
-
-      {/*<div style={{ margin: "auto", width: "100%" }}>*/}
-      {/*  <p style={{ textAlign: "center" }}>Result:</p>*/}
-      {/*  {result && (*/}
-      {/*    <img*/}
-      {/*      src={result}*/}
-      {/*      style={{*/}
-      {/*        margin: "auto",*/}
-      {/*        display: "block",*/}
-      {/*        width: 256,*/}
-      {/*        height: 256,*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  )}*/}
-      {/*</div>*/}
     </div>
   );
 };
