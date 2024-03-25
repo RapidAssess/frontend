@@ -9,41 +9,50 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 function SignUp(props) {
-    const [registerForm, setRegisterForm] = useState({
-        name:"",
-        username:"",
-        password:""
+  const [registerForm, setRegisterForm] = useState({
+    name: "",
+    username: "",
+    password: "",
+  });
+
+  function signMeUp(event) {
+    axios({
+      method: "POST",
+      url: "/adduser",
+      data: {
+        name: registerForm.name,
+        username: registerForm.username,
+        password: registerForm.password,
+      },
     })
+      .then((response) => {
+        props.setToken(response.data.access_token);
+        sessionStorage.setItem("userToken", response.data["user_token"]);
+        sessionStorage.setItem("userId", response.data["user_id"]);
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
 
-    function signMeUp(event) {
-        axios({
-            method:"POST",
-            url:"/adduser",
-            data:{
-                name: registerForm.name,
-                username: registerForm.username,
-                password: registerForm.password
-            }
-        })
-        .then((response) => {
-            props.setToken(response.data.access_token)
-            sessionStorage.setItem("userToken", response.data["user_token"]);
-            sessionStorage.setItem("userId", response.data["user_id"]); 
-        }).catch((error) => {
-            if (error.response) {
-                console.log(error.response)
-                console.log(error.response.status)
-                console.log(error.response.headers)
-            }
-        })
+    setRegisterForm({
+      name: "",
+      username: "",
+      password: "",
+    });
+    event.preventDefault();
+  }
 
-        setRegisterForm(({
-            name:"",
-            username:"",
-            password:""
-        }))
-        event.preventDefault()
-    }
+  function handleChange(event) {
+    const { value, name } = event.target;
+    setRegisterForm((prevNote) => ({
+      ...prevNote,
+      [name]: value,
+    }));
+  }
 
     function handleChange(event) {
         const {value, name} = event.target
