@@ -54,10 +54,17 @@ function Login(props) {
     )
     }
 
+    const LoginStyle = {
+        transform: "translate(0, -50%)",
+        position: "absolute",
+        top: '50%',
+        height: '42%',
+    };
+
       return (
           <>
-            <div className="flex justify-center">
-                <Box className="max-w-[512px] m-3 p-3 shadow-md">
+            <div className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto flex justify-center">
+                <Box sx={LoginStyle} className="max-w-[512px] m-3 p-3 shadow-md ">
                     <Typography variant="h5">
                         Sign In
                     </Typography>
@@ -94,6 +101,14 @@ function Login(props) {
                         type="Submit"
                         fullWidth
                         variant="contained"
+
+                        sx={{
+                            backgroundColor: "#4E0506!important",
+                            color: "white!important",
+                            "&:hover": {
+                                backgroundColor: "#440000!important",
+                            },
+                        }}
                     >
                         Login
                     </Button>

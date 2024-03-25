@@ -52,11 +52,18 @@ function SignUp(props) {
     )
     }
 
+    const SignupStyle = {
+        transform: "translate(0, -50%)",
+        position: "absolute",
+        top: '50%',
+        height: '55%',
+    };
+
 
       return (
         <>
-            <div className="flex justify-center w-full w-screen">
-                <Box className="max-w-[512px] m-3 p-3 shadow-md">
+            <div className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto flex justify-center">
+                <Box sx={SignupStyle} className="max-w-[512px] m-3 p-3 shadow-md">
                     <Typography variant="h5">
                         Register
                     </Typography>
@@ -105,6 +112,14 @@ function SignUp(props) {
                         type="Submit"
                         fullWidth
                         variant="contained"
+
+                        sx={{
+                            backgroundColor: "#4E0506!important",
+                            color: "white!important",
+                            "&:hover": {
+                                backgroundColor: "#440000!important",
+                            },
+                        }}
                     >
                         Register
                     </Button>
