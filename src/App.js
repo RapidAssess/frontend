@@ -16,7 +16,7 @@ function App() {
   return (
     <>
       <Router>
-        {token && <Menu />}
+        {token && <NavBar />}
         <Routes>
           <Route
             path="/"
@@ -30,7 +30,14 @@ function App() {
             path="/signup"
             element={!token ? <SignUp /> : <Navigate replace to="/" />}
           />
-          <Route path="/home" element={<HomePage />} />
+          <Route
+            path="/home"
+            element={<HomePage />}
+          />
+          <Route
+            path="/settings"
+            element={token ? <Settings /> : <Navigate replace to="/" />}
+          />
         </Routes>
       </Router>
     </>
