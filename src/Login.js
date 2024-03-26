@@ -53,7 +53,7 @@ function Login(props) {
       ...prevNote,
       [name]: value,
     }));
-  }
+
 
         setLoginForm(({
             username:"",
@@ -73,7 +73,7 @@ function Login(props) {
         transform: "translate(0, -50%)",
         position: "absolute",
         top: '50%',
-        height: '42%',
+        height: '39%',
     };
 
       return (

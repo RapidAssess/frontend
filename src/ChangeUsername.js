@@ -30,7 +30,7 @@ const ChangeUsername = () => {
     )
     }
     function ChangeMyUsername(event) {
-       if (usernameForm.newUsername !== usernameForm.confNewUsername) {
+        if (usernameForm.newUsername !== usernameForm.confNewUsername) {
             alert("Usernames do not match");
         }
         else {
