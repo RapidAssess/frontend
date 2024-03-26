@@ -1,72 +1,54 @@
 import axios from "axios";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import { Button, TextField, Grid, Box, Typography } from "@mui/material";
 
 function Login(props) {
-  const [loginForm, setLoginForm] = useState({
-    username: "",
-    password: "",
-  });
-
-  async function logMeIn(event) {
-    axios({
-      method: "POST",
-      url: "/login",
-      data: {
-        username: loginForm.username,
-        password: loginForm.password,
-      },
-    })
-      .then((response) => {
-        if (response.data["user_token"]) {
-          sessionStorage.setItem("userToken", response.data["user_token"]);
-          sessionStorage.setItem("userId", response.data["user_id"]);
-          console.log(response.user_token);
-          console.log(response.data);
-          window.location.href = "/home";
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.log(error.response);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        }
-      });
-
-    setLoginForm({
-      username: "",
-      password: "",
+    const [loginForm, setLoginForm] = useState({
+        username: "",
+        password: "",
     });
 
-    event.preventDefault();
-  }
-  function handleChange(event) {
-    const { value, name } = event.target;
-    setLoginForm((prevNote) => ({
-      ...prevNote,
-      [name]: value,
-    }));
-  }
+    async function logMeIn(event) {
+        event.preventDefault();
 
-        setLoginForm(({
-            username:"",
-            password:""
-        }))
+        axios({
+            method: "POST",
+            url: "/login",
+            data: {
+                username: loginForm.username,
+                password: loginForm.password,
+            },
+        })
+            .then((response) => {
+                if (response.data["user_token"]) {
+                    sessionStorage.setItem("userToken", response.data["user_token"]);
+                    sessionStorage.setItem("userId", response.data["user_id"]);
+                    console.log(response.user_token);
+                    console.log(response.data);
+                    window.location.href = "/home";
+                }
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                }
+            });
 
-        event.preventDefault()
+        setLoginForm({
+            username: "",
+            password: "",
+        });
     }
+
     function handleChange(event) {
-        const {value, name} = event.target
+        const { value, name } = event.target;
         setLoginForm(prevNote => ({
-            ...prevNote, [name]: value})
-    )
+            ...prevNote,
+            [name]: value
+        }));
     }
 
     const LoginStyle = {
@@ -76,10 +58,10 @@ function Login(props) {
         height: '42%',
     };
 
-      return (
-          <>
+    return (
+        <>
             <div className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto flex justify-center">
-                <Box sx={LoginStyle} className="max-w-[512px] m-3 p-3 shadow-md ">
+                <Box sx={LoginStyle} className="max-w-[512px] m-3 p-3 bg-white shadow-md">
                     <Typography variant="h5">
                         Sign In
                     </Typography>
@@ -92,7 +74,6 @@ function Login(props) {
                         label="Username"
                         autoComplete="username"
                         type="text"
-                        text={loginForm.username}
                         name="username"
                         value={loginForm.username}
                         autoFocus
@@ -105,10 +86,8 @@ function Login(props) {
                         id="password"
                         label="Password"
                         type="password"
-                        text={loginForm.password}
                         name="password"
                         value={loginForm.password}
-                        autoFocus
                     />
                     <Button
                         margin="normal"
@@ -116,7 +95,6 @@ function Login(props) {
                         type="Submit"
                         fullWidth
                         variant="contained"
-
                         sx={{
                             backgroundColor: "#4E0506!important",
                             color: "white!important",
@@ -130,13 +108,13 @@ function Login(props) {
                     <Grid container className="justify-center">
                         <Grid item>
                             <Link to="/signup" className="text-blue-700">
-                                { "Don't have an account? Sign up" }
+                                {"Don't have an account? Sign up"}
                             </Link>
                         </Grid>
                     </Grid>
                 </Box>
             </div>
-          </>
+        </>
     );
 }
 
