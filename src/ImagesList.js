@@ -36,8 +36,9 @@ const ImagesDisplay = () => {
     if (userId) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`/images/${userId}`);
+        const response = await axios.get(`/listAI/${userId}`);
         setImages(response.data.images || []);
+
       } catch (error) {
         console.error("Failed to fetch images:", error);
         setImages([]);
@@ -90,14 +91,14 @@ const ImagesDisplay = () => {
   };
 
   const handleDelete = () => {
-    const imageId = selectedImage.id;
+    const imageId = selectedImage.aiID;
     if (!imageId) {
       console.error("Error: imageId is undefined");
       return;
     }
 
     axios
-      .delete(`/delete/${imageId}`)
+      .delete(`/deleteAI/${imageId}`)
       .then((response) => {
         console.log("Delete response:", response.data);
         fetchImages();

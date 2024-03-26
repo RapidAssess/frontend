@@ -351,6 +351,21 @@ export const ImageUpload = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      
+      const { imageID } = response.data;
+
+      
+      const aiResponse = await axios.post('/saveAI', {
+          imageID: imageID, 
+          user_id: userToken, 
+          name : locationTitle
+      });
+
+
+      
+
+      
+      
     } catch (error) {
       console.error("Error saving the image and location:", error);
       alert("Failed to save the image and location.");
