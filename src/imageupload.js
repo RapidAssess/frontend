@@ -16,6 +16,7 @@ import CollectionsIcon from "@mui/icons-material/Collections";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PinDropIcon from "@mui/icons-material/PinDrop";
 import "./output.css";
+import FileCollections from "./FileCollections";
 
 const modalStyle = {
   position: "absolute",
@@ -57,6 +58,7 @@ export const ImageUpload = () => {
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
   const canvasRef = useRef(null);
+  
 
   const [isClearFormVisible, setIsClearFormVisible] = useState(false);
   const [clearOptions, setClearOptions] = useState({
@@ -66,6 +68,35 @@ export const ImageUpload = () => {
     allPins: false,
     image: false,
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+  const [prevFile,setPrevFile]= useState(false)
+  const [clickFile,setClickFile]=useState();
+
+  const handleFileSelect = async (image) => {
+    try {
+     
+      const dataUri = `data:image/jpeg;base64,${image.data}`;
+  
+      const response = await fetch(dataUri);
+      const blob = await response.blob();
+  
+      const file = new File([blob], image.fileName, { type: blob.type });
+      
+      setSelectedFile(file); 
+      setPrevFile(true);
+      setClickFile(image);
+      setImage(true);
+      
+    } catch (error) {
+      console.error('Error converting Base64 to File:', error);
+    }
+  };
+  
+  
+  
 
   const CustomNumberInput = ({ value, onChange, min = 0, max = 256 }) => {
     const [localValue, setLocalValue] = useState(value.toString());
@@ -341,8 +372,10 @@ export const ImageUpload = () => {
     formData.append("image", selectedFile);
     formData.append("name", locationTitle);
     formData.append("user_id", userToken);
+    formData.append("fileName", selectedFile.name);
 
     try {
+      if(!prevFile){
       const response = await axios({
         method: "post",
         url: "/image",
@@ -351,16 +384,31 @@ export const ImageUpload = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      
       const { imageID } = response.data;
+      const aiResponse = await axios.post('/saveAI', {
+        imageID: imageID, 
+        user_id: userToken, 
+        name : locationTitle
+    });
+
+    }else{
+      const  imageID  = clickFile.imageID;
+      const aiResponse = await axios.post('/saveAI', {
+        imageID: imageID, 
+        user_id: userToken, 
+        name : locationTitle
+    });
+
+
+    }
+
+    setClickFile({});
+    setPrevFile(false);
+      
+      
 
       
-      const aiResponse = await axios.post('/saveAI', {
-          imageID: imageID, 
-          user_id: userToken, 
-          name : locationTitle
-      });
-
+      
 
       
 
@@ -378,8 +426,11 @@ export const ImageUpload = () => {
 
   useEffect(() => {
     if (selectedFile) {
+      
       const objectUrl = URL.createObjectURL(selectedFile);
+      
       const img = new Image();
+      
       img.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = 256;
@@ -388,6 +439,8 @@ export const ImageUpload = () => {
         ctx.drawImage(img, 0, 0, 256, 256);
         const resizedImageURL = canvas.toDataURL("image/jpeg");
         setPreview(resizedImageURL);
+        console.log("preview");
+        console.log(preview);
       };
       img.src = objectUrl;
       return () => URL.revokeObjectURL(objectUrl);
@@ -399,6 +452,7 @@ export const ImageUpload = () => {
       return;
     }
     setIsloading(true);
+    console.log(preview);
     // sendFile();
   }, [preview]);
 
@@ -530,11 +584,9 @@ export const ImageUpload = () => {
                     </label>
                   </div>
                   <div className="m-3">
-                    <label htmlFor="contained-button-file">
-                      <Fab className="m-3" component="span">
-                        <CollectionsIcon className="m-3" />
-                      </Fab>
-                    </label>
+                    <Fab className="m-3" component="span" onClick={handleOpenModal}>
+                      <CollectionsIcon className="m-3" color="primary" />
+                     </Fab>
                   </div>
                 </div>
               </Card>
@@ -737,6 +789,7 @@ export const ImageUpload = () => {
           </form>
         </Box>
       </Modal>
+      <FileCollections open={isModalOpen} onClose={handleCloseModal} onFileSelect={handleFileSelect} />
     </div>
   );
 };
