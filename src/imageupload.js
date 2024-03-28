@@ -30,7 +30,7 @@ const modalStyle = {
   borderRadius: "16px",
 };
 
-export const ImageUpload = () => {
+export const ImageUpload = ({ onClose }) => {
   const [selectedFile, setSelectedFile] = useState();
   const [preview, setPreview] = useState();
   const [data, setData] = useState();
@@ -66,6 +66,7 @@ export const ImageUpload = () => {
     allPins: false,
     image: false,
   });
+
 
   const CustomNumberInput = ({ value, onChange, min = 0, max = 256 }) => {
     const [localValue, setLocalValue] = useState(value.toString());
@@ -327,50 +328,50 @@ export const ImageUpload = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!selectedFile) {
-      alert("Please select an image to save.");
-      return;
-    }
-    if (!locationTitle) {
-      alert("Please enter a location title.");
-      return;
-    }
+    const handleSave = async () => {
+        if (!selectedFile) {
+            alert("Please select an image to save.");
+            return;
+        }
+        if (!locationTitle) {
+            alert("Please enter a location title.");
+            return;
+        }
 
-    const formData = new FormData();
-    formData.append("image", selectedFile);
-    formData.append("name", locationTitle);
-    formData.append("user_id", userToken);
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+        formData.append("name", locationTitle);
+        formData.append("user_id", userToken);
 
-    try {
-      const response = await axios({
-        method: "post",
-        url: "/image",
-        data: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
-      const { imageID } = response.data;
+        try {
+            const response = await axios({
+                method: "post",
+                url: "/image",
+                data: formData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
 
-      
-      const aiResponse = await axios.post('/saveAI', {
-          imageID: imageID, 
-          user_id: userToken, 
-          name : locationTitle
-      });
+            if (response.status === 200) {
+                // Assuming imageID is used for something in /saveAI endpoint
+                const { imageID } = response.data;
 
+                await axios.post('/saveAI', {
+                    imageID: imageID,
+                    user_id: userToken,
+                    name: locationTitle
+                });
 
-      
+                // Close the modal if image is saved successfully
+                onClose();  // Make sure onClose is properly passed as a prop to this component
+            }
 
-      
-      
-    } catch (error) {
-      console.error("Error saving the image and location:", error);
-      alert("Failed to save the image and location.");
-    }
-  };
+        } catch (error) {
+            console.error("Error saving the image and location:", error);
+            alert("Failed to save the image and location.");
+        }
+    };
 
   const toggleAdvancedSettings = () => {
     setAdvancedSettingsVisible(!advancedSettingsVisible);

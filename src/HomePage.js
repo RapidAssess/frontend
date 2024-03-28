@@ -8,22 +8,26 @@ import axios from "axios";
 import ImagesList from "./ImagesList";
 
 const HomePage = () => {
+  const [refreshFlag, setRefreshFlag] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        setOpen(false);
+        setRefreshFlag(!refreshFlag); 
+    };
 
-  const [images, setImages] = useState([]); // State to store images
-
+  const [images, setImages] = useState([]); 
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId"); // Retrieve the userId, adjust based on your auth strategy
+    const userId = sessionStorage.getItem("userId"); 
     axios
       .get(`/images/${userId}`)
       .then((response) => {
-        setImages(response.data.images); // Assuming the response contains an 'images' array
+        setImages(response.data.images);
       })
       .catch((error) => console.error("Error fetching images:", error));
   }, []);
+
 
   const modalStyle = {
     position: "absolute",
@@ -46,7 +50,7 @@ const HomePage = () => {
       className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto"
       style={{ padding: 20 }}
     >
-      <ImagesList />
+          <ImagesList onRefresh={refreshFlag} />
       <Button
         variant="contained"
         onClick={handleOpen}
@@ -83,7 +87,8 @@ const HomePage = () => {
           >
             <CloseIcon />
           </IconButton>
-          <ImageUpload />
+          <ImageUpload onClose={handleClose} />
+
         </Box>
       </Modal>
     </div>
