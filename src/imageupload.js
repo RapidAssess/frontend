@@ -15,6 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PinDropIcon from "@mui/icons-material/PinDrop";
+import CircularProgress from "@mui/material/CircularProgress";
 import "./output.css";
 import FileCollections from "./FileCollections";
 
@@ -400,7 +401,7 @@ export const ImageUpload = ({ onClose }) => {
 
     setClickFile({});
     setPrevFile(false);
-        onClose();
+    onClose();
       
 
       
@@ -447,7 +448,7 @@ export const ImageUpload = ({ onClose }) => {
     if (!preview) {
       return;
     }
-    setIsloading(true);
+    // setIsloading(true);
     console.log(preview);
     // sendFile();
   }, [preview]);
@@ -492,7 +493,16 @@ export const ImageUpload = ({ onClose }) => {
                 display: "flex",
                 justifyContent: "center",
               }}
-            >
+            > {isLoading && (<div style={{
+              position: "absolute",
+              zIndex: 20,
+              top: "55%",
+            }}> 
+              <CircularProgress sx={{
+                color: "white",
+              }}></CircularProgress>
+              </div>)
+              }
               {preview && (
                 <div
                   style={{
