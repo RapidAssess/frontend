@@ -24,6 +24,14 @@ const style = {
     borderRadius: "10px",
 };
 
+const loadingEmptyStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    textTransform: "uppercase",
+}
+
 const ImagesDisplay = ({ onRefresh }) => {
     const [images, setImages] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -118,7 +126,7 @@ const ImagesDisplay = ({ onRefresh }) => {
     return (
         <div>
             {isLoading ? (
-                <p>Loading images...</p>
+                <Typography sx={loadingEmptyStyle} variant="h5">Loading images...</Typography>
             ) : (
                 images.length > 0 ? (
                     <div>
@@ -195,7 +203,7 @@ const ImagesDisplay = ({ onRefresh }) => {
                         ))}
                     </div>
                 ) : (
-                    <p>No images found.</p>
+                    <Typography sx={loadingEmptyStyle} variant="h5">No images found</Typography>
                 )
             )}
             <Modal
