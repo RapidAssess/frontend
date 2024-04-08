@@ -15,57 +15,80 @@ function SignUp(props) {
     password: "",
   });
 
-  function signMeUp(event) {
-    axios({
-      method: "POST",
-      url: "/adduser",
-      data: {
-        name: registerForm.name,
-        username: registerForm.username,
-        password: registerForm.password,
-      },
+    const [hint, setHint] = useState({
+      hintMessage:"",
+      showHint: false,
     })
-      .then((response) => {
-        props.setToken(response.data.access_token);
-        sessionStorage.setItem("userToken", response.data["user_token"]);
-        sessionStorage.setItem("userId", response.data["user_id"]);
+    const [password, setPassword] = useState("")
+    const passwordPattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$";
+    hint.hintMessage = "A strong password must include lower and upper case characters, at least one special character, at least one number, and be at least 8 characters long";
+
+  function signMeUp(event) {
+      axios({
+        method: "POST",
+        url: "/adduser",
+        data: {
+          name: registerForm.name,
+          username: registerForm.username,
+          password: registerForm.password,
+        },
       })
-      .catch((error) => {
-        if (error.response) {
-          console.log(error.response);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        }
+        .then((response) => {
+          props.setToken(response.data.access_token);
+          sessionStorage.setItem("userToken", response.data["user_token"]);
+          sessionStorage.setItem("userId", response.data["user_id"]);
+        })
+        .catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          }
+        });
+
+      setRegisterForm({
+        name: "",
+        username: "",
+        password: "",
       });
+      event.preventDefault();
+    }
 
-    setRegisterForm({
-      name: "",
-      username: "",
-      password: "",
-    });
-    event.preventDefault();
-  }
 
-  function handleChange(event) {
-    const { value, name } = event.target;
-    setRegisterForm((prevNote) => ({
-      ...prevNote,
-      [name]: value,
-    }));
-  }
+  const handleChange = (name, value) => {
+        setRegisterForm({...registerForm, [name]:value,});
+    }
 
-    function handleChange(event) {
-        const {value, name} = event.target
-        setRegisterForm(prevNote => ({
-            ...prevNote, [name]: value})
-    )
+    const validateAndSignUp = (event) => {
+        event.preventDefault();
+        handleChange(event);
+
+        if (!registerForm.username) {
+          alert("Username field cannot be empty!")
+        }
+        if (!registerForm.name) {
+          alert("Name field cannot be empty!")
+        }
+        if (!registerForm.password.match(passwordPattern)) {
+            alert("Password does not follow criteria!")
+            hint.showHint = true
+            return
+        }
+        else {
+          signMeUp(event);
+        }
+
+        setRegisterForm((prevState) => ({
+            ...prevState,
+            successMsg: "Validation Success",
+        }));
     }
 
     const SignupStyle = {
         transform: "translate(0, -50%)",
         position: "absolute",
         top: '50%',
-        height: '55%',
+        height: "auto",
     };
 
 
@@ -78,7 +101,7 @@ function SignUp(props) {
                     </Typography>
                     <TextField
                         margin="normal"
-                        onChange={handleChange}
+                        onChange={({ target }) => {handleChange(target.name, target.value);}}
                         required
                         fullWidth
                         id="name"
@@ -91,7 +114,7 @@ function SignUp(props) {
                     />
                     <TextField
                         margin="normal"
-                        onChange={handleChange}
+                        onChange={({ target }) => {handleChange(target.name, target.value);}}
                         required
                         fullWidth
                         id="username"
@@ -105,7 +128,7 @@ function SignUp(props) {
                     />
                     <TextField
                         margin="normal"
-                        onChange={handleChange}
+                        onChange={({ target }) => {handleChange(target.name, target.value);}}
                         required
                         fullWidth
                         id="password"
@@ -116,8 +139,9 @@ function SignUp(props) {
                         value={registerForm.password}
                         autoFocus
                     />
+                    {hint.showHint && <Typography variant="subtitle2" className="p-5">{hint.hintMessage}</Typography>}
                     <Button
-                        onClick={signMeUp}
+                        onClick={validateAndSignUp}
                         type="Submit"
                         fullWidth
                         variant="contained"

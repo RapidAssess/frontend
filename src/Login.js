@@ -73,7 +73,7 @@ function Login(props) {
         transform: "translate(0, -50%)",
         position: "absolute",
         top: '50%',
-        height: '39%',
+        height: "auto",
     };
 
       return (
