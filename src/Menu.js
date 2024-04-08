@@ -15,7 +15,7 @@ const NavBar = () => {
             <IconButton color="inherit">
                 <RouteIcon style={{ color: "white", fontSize: "2rem" }} />
             </IconButton>
-            <h1 className="py-2 font-anta text-white text-xl mt-2.5">RAPIDASSESS</h1>
+            <h1 className="py-2 font-anta text-white text-xl mt-3.5">RAPIDASSESS</h1>
             <ul className="py-2 list-none flex justify-start m-3">
                 <li className="mr-4">
                     <Link
