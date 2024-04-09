@@ -6,7 +6,7 @@ import User from "./User";
 
 const NavBar = () => {
     return (
-        <nav className="bg-maroonbg flex w-screen">
+        <nav className="bg-maroonbg flex w-full">
             <IconButton color="inherit">
                 <RouteIcon style={{ color: "white", fontSize: "2rem" }} />
             </IconButton>

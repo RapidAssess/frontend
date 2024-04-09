@@ -79,7 +79,7 @@ function Login(props) {
       return (
           <>
             <div className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto flex justify-center">
-                <Box sx={LoginStyle} className="max-w-[512px] m-3 p-3 shadow-md ">
+                <Box sx={LoginStyle} className="bg-white max-w-[512px] m-3 p-3 shadow-lg ">
                     <Typography variant="h5">
                         Sign In
                     </Typography>

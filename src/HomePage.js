@@ -47,10 +47,17 @@ const HomePage = () => {
 
   return (
     <div
-      className="bg-lightgray h-screen w-screen m-0 p-5 overflow-auto"
+      className="bg-lightgray h-screen w-full m-0 p-5 overflow-auto"
       style={{ padding: 20 }}
     >
-          <ImagesList onRefresh={refreshFlag} />
+          <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              height: '100%', // Take up the full container height
+              width: '100%' // Take up the full container width
+          }}>
+              <ImagesList onRefresh={refreshFlag} />
+          </div>
       <Button
         variant="contained"
         onClick={handleOpen}

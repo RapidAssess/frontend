@@ -129,42 +129,57 @@ const ImagesDisplay = ({ onRefresh }) => {
                 <Typography sx={loadingEmptyStyle} variant="h5">Loading images...</Typography>
             ) : (
                 images.length > 0 ? (
-                    <div>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            maxWidth: '100%',
+                            margin: 'auto',
+                        }}>
                         {images.map((image, index) => (
                             <div
                                 key={index}
                                 style={{
-                                    margin: "10px",
+                                    margin: "12px",
                                     display: "inline-block",
                                     background: "white",
                                     borderRadius: "10px",
-                                    width: "255px",
+                                    width: "260px",
                                     height: "180px",
                                     textAlign: "center",
                                     position: "relative",
+                                    justifyContent: 'center',
                                 }}
                             >
                                 <Button
                                     variant="outlined"
-                                    style={{
-                                        width: "255px",
+                                    sx={{
+                                        width: "260px",
                                         height: "180px",
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "center",
                                         justifyContent: "flex-start",
-                                        padding: "10px",
+                                        padding: "12px",
                                         borderRadius: "10px",
                                         overflow: "hidden",
+                                        borderColor: "#4E0506", 
+                                        color: "#4E0506", 
+                                        '&:hover': {
+                                            borderColor: "#4E0506", 
+                                        },
                                     }}
                                     onClick={() => handleOpen(image)}
                                 >
                                     <Typography
                                         variant="caption"
-                                        style={{
+                                        sx={{
                                             flexGrow: 1,
                                             marginLeft: "5px",
                                             textAlign: "left",
+                                            color: "#4E0506",
+                                            paddingBottom: "6px",
                                         }}
                                     >
                                         {image.name}
@@ -175,6 +190,7 @@ const ImagesDisplay = ({ onRefresh }) => {
                                         style={{
                                             width: "auto",
                                             height: "120px",
+                                            paddingBottom: "10px",
                                             objectFit: "contain",
                                         }}
                                     />
@@ -201,6 +217,14 @@ const ImagesDisplay = ({ onRefresh }) => {
                                 </Menu>
                             </div>
                         ))}
+                            {new Array(5 - images.length % 5).fill().map((_, idx) => (
+                                <div key={`placeholder-${idx}`} style={{
+                                    margin: "12px",
+                                    width: "260px",
+                                    height: "180px",
+                                    visibility: 'hidden',
+                                }} />
+                            ))}
                     </div>
                 ) : (
                     <Typography sx={loadingEmptyStyle} variant="h5">No images found</Typography>
@@ -218,7 +242,7 @@ const ImagesDisplay = ({ onRefresh }) => {
                             <TextField
                                 fullWidth
                                 variant="outlined"
-                                label="Image Name"
+                                label="Location Title"
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
                                 style={{ marginBottom: "20px" }}
@@ -232,18 +256,32 @@ const ImagesDisplay = ({ onRefresh }) => {
                                 color="primary"
                                 variant="contained"
                                 onClick={handleSaveEdit}
+                                sx={{
+                                    backgroundColor: "#4E0506!important",
+                                    color: "white!important",
+                                    "&:hover": {
+                                        backgroundColor: "#440000!important",
+                                    },
+                                }}
                             >
                                 Save Changes
                             </Button>
                         </>
                     ) : (
                         <>
-                            <h2 id="modal-modal-title">{selectedImage.name}</h2>
-                            <img
-                                src={`data:image/jpeg;base64,${selectedImage.data}`}
-                                alt={selectedImage.name}
-                                style={{ maxWidth: "100%", maxHeight: "300px" }}
-                            />
+                            <h2 id="modal-modal-title" className="text-2xl text-center">{selectedImage.name}</h2>
+                                <img
+                                    src={`data:image/jpeg;base64,${selectedImage.data}`}
+                                    alt={selectedImage.name}
+                                    style={{
+                                        maxWidth: "100%",
+                                        maxHeight: "300px",
+                                        display: "block",
+                                        marginLeft: "auto", 
+                                        marginRight: "auto",
+                                        marginTop: "10px",
+                                    }}
+                                />
                         </>
                     )}
                 </Box>
