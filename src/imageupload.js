@@ -43,8 +43,8 @@ export const ImageUpload = ({ onClose }) => {
   const [startY, setStartY] = useState(0);
   const [endX, setEndX] = useState(0);
   const [endY, setEndY] = useState(0);
-  const [rescueX, setRescueX] = useState(0);
-  const [rescueY, setRescueY] = useState(0);
+  const [rescueX, setRescueX] = useState(undefined);
+  const [rescueY, setRescueY] = useState(undefined);
   const [threshold, setThreshold] = useState(10);
   const [greenPinMode, setGreenPinMode] = useState(false);
   const [redPinMode, setRedPinMode] = useState(false);
@@ -255,8 +255,8 @@ export const ImageUpload = ({ onClose }) => {
         formData.append("startY", startY || 0);
         formData.append("endX", endX || 0);
         formData.append("endY", endY || 0);
-        formData.append("middleX", rescueX || 0);
-        formData.append("middleY", rescueY || 0);
+        formData.append("middleX", rescueX);
+        formData.append("middleY", rescueY);
         formData.append("threshold", threshold);
 
         try {
