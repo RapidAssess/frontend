@@ -11,10 +11,12 @@ const HomePage = () => {
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
+
+    const handleOpen = () => setOpen(true);
+
     const handleClose = () => {
         setOpen(false);
-        setRefreshFlag(!refreshFlag); 
+        setRefreshFlag(prev => !prev); 
     };
 
   const [images, setImages] = useState([]); 
@@ -28,6 +30,10 @@ const HomePage = () => {
       .catch((error) => console.error("Error fetching images:", error));
   }, []);
 
+
+    const handleImageSaved = () => {
+        setRefreshFlag(prev => !prev);
+    };
 
   const modalStyle = {
     position: "absolute",
@@ -53,8 +59,8 @@ const HomePage = () => {
           <div style={{
               display: 'flex',
               justifyContent: 'center',
-              height: '100%', // Take up the full container height
-              width: '100%' // Take up the full container width
+              height: '100%', 
+              width: '100%' 
           }}>
               <ImagesList onRefresh={refreshFlag} />
           </div>
@@ -94,7 +100,7 @@ const HomePage = () => {
           >
             <CloseIcon />
           </IconButton>
-          <ImageUpload onClose={handleClose} />
+           <ImageUpload onClose={handleClose} onImageSaved={handleClose} />
 
         </Box>
       </Modal>

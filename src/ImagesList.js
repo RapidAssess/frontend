@@ -11,6 +11,7 @@ import {
     TextField,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const style = {
     position: "absolute",
@@ -61,7 +62,7 @@ const ImagesDisplay = ({ onRefresh }) => {
 
     useEffect(() => {
         fetchImages();
-    }, []);
+    }, [onRefresh]);
 
     const handleOpen = (image) => {
         setSelectedImage(image);
@@ -136,6 +137,7 @@ const ImagesDisplay = ({ onRefresh }) => {
                             justifyContent: 'center',
                             maxWidth: '100%',
                             margin: 'auto',
+                            overflowY: 'hidden'
                         }}>
                         {images.map((image, index) => (
                             <div
@@ -237,6 +239,18 @@ const ImagesDisplay = ({ onRefresh }) => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleClose}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            padding: '3px',
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
                     {editMode ? (
                         <>
                             <TextField
@@ -270,22 +284,23 @@ const ImagesDisplay = ({ onRefresh }) => {
                     ) : (
                         <>
                             <h2 id="modal-modal-title" className="text-2xl text-center">{selectedImage.name}</h2>
-                                <img
-                                    src={`data:image/jpeg;base64,${selectedImage.data}`}
-                                    alt={selectedImage.name}
-                                    style={{
-                                        maxWidth: "100%",
-                                        maxHeight: "300px",
-                                        display: "block",
-                                        marginLeft: "auto", 
-                                        marginRight: "auto",
-                                        marginTop: "10px",
-                                    }}
-                                />
+                            <img
+                                src={`data:image/jpeg;base64,${selectedImage.data}`}
+                                alt={selectedImage.name}
+                                style={{
+                                    maxWidth: "100%",
+                                    maxHeight: "300px",
+                                    display: "block",
+                                    marginLeft: "auto",
+                                    marginRight: "auto",
+                                    marginTop: "10px",
+                                }}
+                            />
                         </>
                     )}
                 </Box>
             </Modal>
+
         </div>
     );
 };

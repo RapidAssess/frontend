@@ -32,7 +32,7 @@ const modalStyle = {
   borderRadius: "16px",
 };
 
-export const ImageUpload = ({ onClose }) => {
+export const ImageUpload = ({ onClose, onImageSave }) => {
   const [selectedFile, setSelectedFile] = useState();
   const [preview, setPreview] = useState();
   const [data, setData] = useState();
@@ -401,15 +401,8 @@ export const ImageUpload = ({ onClose }) => {
 
     setClickFile({});
     setPrevFile(false);
+    console.log('Image saved, calling onImageSave');
     onClose();
-      
-
-      
-      
-
-      
-
-      
       
     } catch (error) {
       console.error("Error saving the image and location:", error);
@@ -496,7 +489,7 @@ export const ImageUpload = ({ onClose }) => {
             > {isLoading && (<div style={{
               position: "absolute",
               zIndex: 20,
-              top: "55%",
+              top: "45%",
             }}> 
               <CircularProgress sx={{
                 color: "white",
@@ -517,8 +510,8 @@ export const ImageUpload = ({ onClose }) => {
                     src={preview}
                     ref={imgRef}
                     style={{
-                      width: "256px", // Ensure this is a string with 'px' to denote pixels
-                      height: "256px", // Ensure this is a string with 'px' to denote pixels
+                      width: "256px", 
+                      height: "256px", 
                       margin: "auto",
                     }}
                   />
@@ -591,7 +584,7 @@ export const ImageUpload = ({ onClose }) => {
                   </div>
                   <div className="m-3">
                     <Fab className="m-3" component="span" onClick={handleOpenModal}>
-                      <CollectionsIcon className="m-3" color="primary" />
+                        <CollectionsIcon className="m-3" color="default"  />
                      </Fab>
                   </div>
                 </div>
@@ -661,15 +654,6 @@ export const ImageUpload = ({ onClose }) => {
               </Tooltip>
 
               <div style={{ marginRight: "16px" }}>
-                {/*<NumberInput*/}
-                {/*  aria-label="Demo number input"*/}
-                {/*  placeholder="Type a number…"*/}
-                {/*  value={threshold}*/}
-                {/*  onChange={(event, val) => setThreshold(val)}*/}
-                {/*  min={0}*/}
-                {/*  max={255}*/}
-                {/*  className="m-4"*/}
-                {/*/>*/}
                 <CustomNumberInput
                   value={threshold}
                   onChange={setThreshold}
@@ -754,16 +738,6 @@ export const ImageUpload = ({ onClose }) => {
               />
               <label htmlFor="redPin"> End Pin</label>
             </div>
-            {/*<div>*/}
-            {/*  <input*/}
-            {/*    type="checkbox"*/}
-            {/*    id="allPins"*/}
-            {/*    name="allPins"*/}
-            {/*    checked={clearOptions.allPins}*/}
-            {/*    onChange={handleClearOptionChange}*/}
-            {/*  />*/}
-            {/*  <label htmlFor="allPins"> All Pins</label>*/}
-            {/*</div>*/}
             <div>
               <input
                 type="checkbox"
