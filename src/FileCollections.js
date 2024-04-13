@@ -4,6 +4,7 @@ import React from "react";
 import axios from "axios";
 function FileCollections({ open, onClose, onFileSelect }) {
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -13,6 +14,7 @@ function FileCollections({ open, onClose, onFileSelect }) {
                 const response = await axios.get(`/images/${userId}`);
                 setFiles(response.data.images || []);
                 console.log(files);
+                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch images:", error);
                 setFiles([]);
@@ -25,6 +27,7 @@ function FileCollections({ open, onClose, onFileSelect }) {
 
   const handleFileClick = (file) => {
     onFileSelect(file); 
+    onClose();
     
   };
 
@@ -44,11 +47,17 @@ function FileCollections({ open, onClose, onFileSelect }) {
           File Names
         </Typography>
         <Box id="modal-modal-description" sx={{ mt: 2 }}>
-          {files.map((file, index) => (
+         <div>
+          {loading ? (
+            <Typography>Loading files...</Typography>
+          ) : (
+             files.map((file, index) => (
             <Typography key={index} onClick={() => handleFileClick(file)} style={{ cursor: 'pointer' }}>
-              {file.fileName} 
+            {file.fileName}
             </Typography>
-          ))}
+          ))
+        )}
+        </div>
         </Box>
       </Box>
     </Modal>
