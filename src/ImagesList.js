@@ -137,7 +137,7 @@ const ImagesDisplay = ({ onRefresh }) => {
                             justifyContent: 'center',
                             maxWidth: '100%',
                             margin: 'auto',
-                            overflowY: 'hidden'
+                            overflowY: 'auto'
                         }}>
                         {images.map((image, index) => (
                             <div

@@ -53,7 +53,7 @@ const HomePage = () => {
 
   return (
     <div
-      className="bg-lightgray h-screen w-full m-0 p-5 overflow-auto"
+      className="bg-lightgray h-full w-full m-0 p-5 overflow-auto"
       style={{ padding: 20 }}
     >
           <div style={{
