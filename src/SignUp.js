@@ -33,33 +33,11 @@ function SignUp(props) {
       },
     })
     .then((response) => {
-      props.setToken(response.data.access_token);
       sessionStorage.setItem("userToken", response.data["user_token"]);
       sessionStorage.setItem("userId", response.data["user_id"]);
-    })
-    .catch((error) => {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    });
-
-    axios({
-      method: "POST",
-      url: "/login",
-      data: {
-        username: registerForm.username,
-        password: registerForm.password,
-      },
-    }).then((response) => {
-      if (response.data["user_token"]) {
-        sessionStorage.setItem("userToken", response.data["user_token"]);
-        sessionStorage.setItem("userId", response.data["user_id"]);
-        console.log(response.user_token);
-        console.log(response.data);
-        window.location.href = "/home";
-      }
+      console.log(response.user_token);
+      console.log(response.data);
+      window.location.href = "/home";
     })
     .catch((error) => {
       if (error.response) {
