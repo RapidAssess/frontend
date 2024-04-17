@@ -125,7 +125,7 @@ const ImagesDisplay = ({ onRefresh }) => {
     };
 
     return (
-        <div>
+        <div className="h-full w-full bg-lightgray">
             {isLoading ? (
                 <Typography sx={loadingEmptyStyle} variant="h5">Loading images...</Typography>
             ) : (
